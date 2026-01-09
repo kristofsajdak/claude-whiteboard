@@ -62,5 +62,14 @@ export function createApiRouter(store: CanvasStore, broadcast?: (canvas: CanvasS
     }
   })
 
+  router.get('/session', async (req, res) => {
+    try {
+      const session = await store.getSession()
+      res.json(session)
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to get session' })
+    }
+  })
+
   return router
 }
