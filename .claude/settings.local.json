@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:using-git-worktrees)",
+      "Skill(superpowers:writing-plans)",
+      "Skill(superpowers:subagent-driven-development)",
+      "Bash(npm install:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm test:*)",
+      "Skill(superpowers:finishing-a-development-branch)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(canvas)",
+      "Bash(curl:*)"
+    ]
+  },
+  "disabledMcpjsonServers": [
+    "canvas"
+  ]
+}
