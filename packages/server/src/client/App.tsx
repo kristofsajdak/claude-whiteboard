@@ -1,11 +1,15 @@
 import React, { useState } from 'react'
 import { Excalidraw } from '@excalidraw/excalidraw'
 import { useCanvas } from './hooks/useCanvas'
+import { JoinModal } from './components/JoinModal'
 
 export default function App() {
   const { elements, participantCount, sessionName, onChange, onSavepoint, onUndo } = useCanvas()
   const [showSavepointModal, setShowSavepointModal] = useState(false)
   const [savepointName, setSavepointName] = useState('')
+  const [userName, setUserName] = useState<string | null>(() => {
+    return localStorage.getItem('whiteboard-name')
+  })
 
   const handleSavepoint = async () => {
     if (savepointName.trim()) {
@@ -13,6 +17,10 @@ export default function App() {
       setSavepointName('')
       setShowSavepointModal(false)
     }
+  }
+
+  if (!userName) {
+    return <JoinModal onJoin={setUserName} />
   }
 
   return (
