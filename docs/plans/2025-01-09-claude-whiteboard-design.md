@@ -1,148 +1,129 @@
 # Claude Whiteboard - Design Document
 
-A collaborative AI-powered diagramming tool where multiple participants interact with Claude to create and manipulate Excalidraw diagrams.
+A collaborative AI-powered diagramming tool where multiple participants use their own Claude Code instances to interact with a shared Excalidraw canvas.
 
 ## Overview
 
-Claude Whiteboard lets a host run a local server that exposes a shared Excalidraw canvas to the internet via ngrok. Participants join via a secret link, see the same canvas, and can either submit prompts for Claude to process or directly manipulate the canvas.
+Claude Whiteboard is a decentralized collaborative whiteboard. Anyone can host a canvas server (exposed via ngrok), share the secret URL, and participants connect using an MCP server in their local Claude Code. Each participant has their own Claude instance with access to their own local codebase.
 
 ### Core Flow
 
-1. Host starts the whiteboard server locally pointing at a project folder
-2. Bundled ngrok exposes it, generating a shareable URL
-3. Participants open the URL, enter their name, and join
-4. Everyone sees the same Excalidraw canvas
-5. Anyone can submit prompts (queued, processed sequentially by Claude)
-6. Anyone can grab the canvas lock to directly manipulate elements
-7. All changes sync to all participants in real-time
-8. Full history maintained on disk for rollback
+1. Someone starts the canvas server locally
+2. ngrok exposes it, generating a shareable URL
+3. URL shared out-of-band (WhatsApp, Slack, etc.)
+4. Participants connect their Claude Code to the canvas via MCP: `canvas_connect <url>`
+5. Everyone can view/edit the canvas directly in browser
+6. Everyone can use Claude + MCP to make AI-assisted modifications
+7. Changes from any source sync to all viewers in real-time
+8. Savepoints maintained on server for rollback
 
 ### Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│  Host's Local Machine                       │
-│  ┌─────────────┐    ┌──────────────────┐   │
-│  │ Claude Code │◄──►│  Local Webserver │   │
-│  │    CLI      │    │  (Node.js)       │   │
-│  └─────────────┘    └────────┬─────────┘   │
-│        │                     │              │
-│        ▼                     │              │
-│   Local git folder           │              │
-└──────────────────────────────┼──────────────┘
-                               │
-                          ┌────▼────┐
-                          │  ngrok  │
-                          │(bundled)│
-                          └────┬────┘
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        ▼                      ▼                      ▼
-   Participant 1          Participant 2          Participant 3
-   (browser)              (browser)              (browser)
+┌─────────────────────────────────────────────────────────────────┐
+│                    Shared Canvas Server                         │
+│                    (anyone can host via ngrok)                  │
+│                                                                 │
+│   • Web UI: Excalidraw canvas, real-time sync                   │
+│   • REST API: get/set JSON, savepoints, rollback                │
+│   • WebSocket: broadcasts changes to all viewers                │
+│   • No AI - just state management                               │
+└───────────────┬─────────────────────────────────┬───────────────┘
+                │                                 │
+        ┌───────┴───────┐                 ┌───────┴───────┐
+        │  Browser(s)   │                 │  MCP Clients  │
+        │               │                 │               │
+        │ View & edit   │                 │ Claude Code   │
+        │ directly      │                 │ + local repos │
+        └───────────────┘                 └───────────────┘
 ```
 
-## Prompt & Canvas Flow
+### Two Interaction Modes
 
-### Prompt Submission
+1. **Direct (Browser)** - Open the shared URL, draw/move things in Excalidraw
+2. **AI-Assisted (MCP)** - Claude fetches canvas, modifies it using local codebase context, pushes update
 
-1. Participant types prompt in input box, hits submit
-2. Prompt added to queue (visible to all participants)
-3. Queue processed sequentially (one prompt at a time)
-4. Any queued prompt can be cancelled by anyone (trust-based)
+Changes from either mode sync to everyone via WebSocket.
 
-### Prompt Execution
+## MCP Server
 
-1. Server builds context with current canvas JSON + user prompt + project path
-2. Server calls: `claude -p "<context>" --cwd /path/to/project`
-3. Claude responds with updated Excalidraw JSON
-4. Server validates JSON, pushes to history, saves to disk
-5. Server broadcasts new state to all clients via WebSocket
-6. Lock automatically held by "Claude" during execution
+Each participant runs the MCP server in their Claude Code instance. It connects to the shared canvas server.
 
-### Prompt Template
+### Tools
 
-```
-You are a whiteboard assistant. You receive an Excalidraw canvas JSON and a user request.
-Respond ONLY with the updated Excalidraw JSON - no explanation, no markdown.
+| Tool | Description |
+|------|-------------|
+| `canvas_connect` | Connect to a whiteboard session by URL. Sets context for subsequent calls. |
+| `canvas_get` | Fetch current canvas JSON from connected whiteboard. |
+| `canvas_set` | Push new canvas JSON to connected whiteboard. |
+| `canvas_savepoint` | Create a named checkpoint on the server. |
+| `canvas_rollback` | Restore canvas to a previous savepoint. |
+| `canvas_history` | List available savepoints with timestamps. |
 
-Current canvas:
-<JSON>
-
-User request: "<prompt>"
-
-Project context available at: /path/to/project
-```
-
-### Error Handling
-
-- If Claude returns invalid JSON: keep current state, show error to participants
-- If Claude Code times out (120s): show timeout message, release lock, remove from queue
-
-## Locking & Direct Editing
-
-### Trust-Based Lock Model
-
-- Single lock, anyone or anything can grab it at any time
-- Click "Take Control" → you have the lock, can edit canvas
-- Someone else clicks "Take Control" → they now have it, you lose it
-- Prompt starts executing → Claude has the lock automatically
-- No explicit release button needed
-
-### UI Indicator
-
-- Shows: "🔒 [Name] is editing" or "🔒 Claude is thinking..."
-- "Take Control" button always visible
-
-### While Locked
-
-- Lock holder can drag, resize, draw, delete elements directly
-- Changes broadcast to all viewers in real-time
-- Other participants see canvas updating but can't edit
-- Prompt submission still works (queues up)
-
-### While Unlocked
-
-- Canvas is view-only for everyone
-- Prompt submission is the only way to make changes
-
-## Persistence
-
-### Folder Structure
+### Participant Workflow
 
 ```
-.claude-whiteboard/
-├── ngrok-token             # stored auth token
-└── sessions/
-    ├── auth-flow-diagrams/
-    │   ├── canvas.json          # current canvas state
-    │   ├── history/
-    │   │   ├── 001.json
-    │   │   ├── 002.json
-    │   │   └── ...
-    │   ├── queue.json           # pending prompts
-    │   └── session.json         # { name, description, created, lastModified }
-    └── api-architecture/
-        └── ...
+User: "Connect to this whiteboard: https://abc123.ngrok.io"
+Claude: [calls canvas_connect]
+Claude: "Connected to whiteboard 'auth-flow-diagrams'"
+
+User: "Add a box for the user service based on our auth code"
+Claude: [calls canvas_get to fetch current state]
+Claude: [reads local files for context]
+Claude: [generates updated Excalidraw JSON]
+Claude: [calls canvas_set to push changes]
+Claude: "Added user service box connected to the auth gateway"
 ```
 
-### When to Save
+### MCP Server Installation
 
-- **On every prompt completion** - save new canvas state to history + canvas.json
-- **During direct editing** - save canvas.json every 3 seconds while lock is held (debounced)
-- **On lock grab** - snapshot to history (captures human edits as a checkpoint)
+```bash
+# Install globally
+npm install -g claude-whiteboard-mcp
 
-### Session Naming
+# Or use npx (auto-downloads)
+npx claude-whiteboard-mcp
+```
 
-- Auto-generated from first prompt (Claude creates a slug)
-- Example: "extract auth flow diagrams" → `auth-flow-diagrams`
-- If name conflicts, append `-2`, `-3`, etc.
+### Claude Code MCP Configuration
 
-### History
+```json
+{
+  "mcpServers": {
+    "canvas": {
+      "command": "npx",
+      "args": ["claude-whiteboard-mcp"]
+    }
+  }
+}
+```
 
-- No limit on history snapshots
-- Each snapshot is a complete canvas state
-- Undo pops last state and broadcasts previous
+No URL configuration needed - participants use `canvas_connect` dynamically.
+
+## Canvas Server
+
+The canvas server is a simple state server with a web UI. It has no AI capabilities - just stores and syncs Excalidraw JSON.
+
+### REST API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/canvas` | GET | Fetch current canvas JSON |
+| `/api/canvas` | PUT | Update canvas JSON |
+| `/api/savepoints` | GET | List all savepoints |
+| `/api/savepoints` | POST | Create new savepoint `{ name: string }` |
+| `/api/savepoints/:name` | POST | Rollback to savepoint |
+
+### WebSocket Events
+
+| Event | Direction | Payload |
+|-------|-----------|---------|
+| `canvas:update` | server → client | Full canvas JSON |
+| `canvas:change` | client → server | Full canvas JSON |
+
+### Conflict Resolution
+
+**Last write wins** - no locking, no queuing. Participants coordinate via voice/chat. Trust-based collaboration.
 
 ## Frontend UI
 
@@ -150,7 +131,7 @@ Project context available at: /path/to/project
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Claude Whiteboard          [Take Control] [Undo]  │
+│  Claude Whiteboard              [Savepoint] [Undo]  │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
 │                                                     │
@@ -159,36 +140,70 @@ Project context available at: /path/to/project
 │                                                     │
 │                                                     │
 ├─────────────────────────────────────────────────────┤
-│  Prompt queue: (2 pending)                          │
-│  • "Add auth service box" - Alice        [Cancel]   │
-│  • "Connect to database" - Bob           [Cancel]   │
-├─────────────────────────────────────────────────────┤
-│  [____________________________] [Send]              │
-│  🔒 Claude is thinking...                           │
+│  Session: auth-flow-diagrams                        │
+│  Participants: 3 connected                          │
 └─────────────────────────────────────────────────────┘
 ```
 
 ### Components
 
-- **Header**: title, Take Control button, Undo button
-- **Canvas**: Excalidraw component, fills most of screen
-- **Queue**: collapsible list of pending prompts with cancel buttons
-- **Input**: text box + send button
-- **Status**: who/what currently holds lock
+- **Header**: session name, Savepoint button, Undo button
+- **Canvas**: Excalidraw component, fills most of screen, fully editable
+- **Footer**: session info, participant count
 
 ### Join Flow
 
 - On first visit: modal prompts "Enter your name to join"
 - Name stored in localStorage (persists on refresh)
+- Name shown to other participants
+
+## Persistence
+
+### Folder Structure (on host machine)
+
+```
+.claude-whiteboard/
+├── ngrok-token             # stored auth token
+└── sessions/
+    └── auth-flow-diagrams/
+        ├── canvas.json          # current canvas state
+        ├── savepoints/
+        │   ├── initial.json
+        │   ├── after-auth-diagram.json
+        │   └── ...
+        └── session.json         # { name, created, lastModified }
+```
+
+### When to Save
+
+- **On every canvas change** - debounced, save canvas.json every 3 seconds during activity
+- **On savepoint creation** - copy canvas.json to savepoints folder with given name
+- **On server shutdown** - final save of current state
+
+### Session Naming
+
+- Auto-generated from first canvas modification (Claude on server generates a slug)
+- Or manually named when starting: `--session my-session-name`
+
+### Savepoint Naming
+
+- User-provided via UI button or MCP tool
+- Examples: "initial", "after-auth-flow", "before-refactor"
 
 ## Tech Stack
 
-### Server (Node.js)
+### Canvas Server (Node.js)
 
-- Express for HTTP (serve static frontend)
+- Express for HTTP (serve static frontend + REST API)
 - WebSocket (`ws` library) for real-time sync
-- Child process to spawn `claude -p` commands
 - `@ngrok/ngrok` package for bundled tunneling
+- File system for persistence
+
+### MCP Server (Node.js)
+
+- `@modelcontextprotocol/sdk` for MCP implementation
+- `node-fetch` for HTTP calls to canvas server
+- Stateful connection (remembers connected URL)
 
 ### Frontend
 
@@ -196,53 +211,38 @@ Project context available at: /path/to/project
 - `@excalidraw/excalidraw` component
 - Native WebSocket for server connection
 
-### Server State
-
-```javascript
-{
-  canvas: { /* excalidraw JSON */ },
-  history: [ /* array of past canvas states */ ],
-  queue: [ { id, prompt, submitter } ],
-  lock: { holder: "Alice" | "claude" | null }
-}
-```
-
-### WebSocket Messages
-
-| Message | Direction | Purpose |
-|---------|-----------|---------|
-| `canvas:update` | server → client | New canvas state |
-| `queue:update` | server → client | Queue changed |
-| `lock:update` | server → client | Lock holder changed |
-| `prompt:submit` | client → server | Submit prompt |
-| `prompt:cancel` | client → server | Cancel queued prompt |
-| `lock:take` | client → server | Grab the lock |
-
 ## Startup & CLI
 
-### Usage
+### Starting the Canvas Server
 
 ```bash
 # Start new session
-npx claude-whiteboard --folder ./my-project
+npx claude-whiteboard-server
+
+# Start with specific session name
+npx claude-whiteboard-server --session auth-flow-diagrams
 
 # Resume existing session
-npx claude-whiteboard --folder ./my-project --session auth-flow-diagrams
+npx claude-whiteboard-server --session auth-flow-diagrams
 
 # List available sessions
-npx claude-whiteboard --folder ./my-project --list
+npx claude-whiteboard-server --list
 ```
 
 ### Startup Sequence
 
 1. Check for existing sessions in `.claude-whiteboard/sessions/`
-2. If sessions exist, prompt: "Resume [session-name] or start new?"
-3. Start Express + WebSocket server on random available port
-4. Launch ngrok tunnel (prompt for token on first run if needed)
-5. Print shareable URL:
+2. If `--session` provided, load or create that session
+3. Otherwise start fresh session (name auto-generated later)
+4. Start Express + WebSocket server on random available port
+5. Launch ngrok tunnel (prompt for token on first run if needed)
+6. Print shareable URL:
    ```
-   ✓ Whiteboard running
+   ✓ Canvas server running
    ✓ Share this link: https://abc123.ngrok.io
+
+   Participants can connect their Claude Code with:
+     "Connect to whiteboard https://abc123.ngrok.io"
 
    Press Ctrl+C to stop
    ```
@@ -251,10 +251,9 @@ npx claude-whiteboard --folder ./my-project --list
 
 | Flag | Description |
 |------|-------------|
-| `--folder <path>` | Project folder for Claude context (required) |
 | `--port <number>` | Use specific port |
 | `--no-ngrok` | Local only, no tunnel |
-| `--session <name>` | Resume specific session |
+| `--session <name>` | Use/create specific session |
 | `--list` | Show available sessions and exit |
 
 ### First-Time Setup
@@ -263,18 +262,41 @@ npx claude-whiteboard --folder ./my-project --list
 Enter your ngrok auth token (from ngrok.com/dashboard): ****
 ✓ Token saved to .claude-whiteboard/ngrok-token
 
-✓ Whiteboard running
+✓ Canvas server running
 ✓ Share this link: https://abc123.ngrok.io
+```
+
+## Package Structure
+
+Two npm packages:
+
+### 1. `claude-whiteboard-server`
+
+The canvas server that hosts sessions.
+
+```bash
+npx claude-whiteboard-server
+```
+
+### 2. `claude-whiteboard-mcp`
+
+The MCP server for Claude Code integration.
+
+```bash
+# Added to Claude Code MCP config
+{
+  "mcpServers": {
+    "canvas": {
+      "command": "npx",
+      "args": ["claude-whiteboard-mcp"]
+    }
+  }
+}
 ```
 
 ## Dependencies
 
-### Runtime
-
-- Node.js 18+
-- Claude Code CLI (installed and authenticated)
-
-### NPM Packages
+### Canvas Server
 
 - `express` - HTTP server
 - `ws` - WebSocket server
@@ -283,6 +305,23 @@ Enter your ngrok auth token (from ngrok.com/dashboard): ****
 - `react`, `react-dom` - Frontend framework
 - `vite` - Build tool
 
+### MCP Server
+
+- `@modelcontextprotocol/sdk` - MCP protocol
+- `node-fetch` - HTTP client
+
+## Summary: Original vs New Design
+
+| Aspect | Original Design | New Design |
+|--------|----------------|------------|
+| Claude runs on | Host only | Everyone's machine |
+| Codebase context | Host's repo | Each person's local repo |
+| Canvas server | Claude + UI + API | Just UI + API (no AI) |
+| Prompt handling | Queue, sequential | Parallel, independent |
+| Locking | Trust-based grab | None, last write wins |
+| Integration | Browser only | Browser + MCP |
+| Packages | 1 (monolith) | 2 (server + MCP) |
+
 ## Future Considerations (Not in Scope)
 
 - Multiple canvases per session
@@ -290,3 +329,4 @@ Enter your ngrok auth token (from ngrok.com/dashboard): ****
 - Participant permissions/roles
 - Voice/video integration
 - Mobile-optimized UI
+- Cursor presence (see who's looking where)
