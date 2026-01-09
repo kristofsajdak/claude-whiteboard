@@ -8,6 +8,8 @@
   },
   "scripts": {
     "build": "tsc && vite build",
+    "build:server": "tsc",
+    "build:client": "vite build",
     "dev": "tsx watch src/cli.ts",
     "test": "vitest"
   },

@@ -7,6 +7,7 @@ import { CanvasWebSocket } from './websocket.js'
 import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
+import { fileURLToPath } from 'url'
 
 interface ServerOptions {
   port?: number
@@ -44,6 +45,17 @@ export async function createServer(options: ServerOptions = {}): Promise<ServerR
       const wss = new CanvasWebSocket(server, store)
 
       app.use('/api', createApiRouter(store, (canvas) => wss.broadcastCanvasUpdate(canvas)))
+
+      // Serve static files from dist/client
+      const __dirname = path.dirname(fileURLToPath(import.meta.url))
+      const clientPath = path.join(__dirname, 'client')
+
+      app.use(express.static(clientPath))
+
+      // SPA fallback - send index.html for all non-API routes
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(clientPath, 'index.html'))
+      })
 
       resolve({ server, port, app, store, wss })
     })
