@@ -3,6 +3,7 @@ import express from 'express'
 import type { Server } from 'http'
 import { CanvasStore } from './canvas-store.js'
 import { createApiRouter } from './api.js'
+import { CanvasWebSocket } from './websocket.js'
 import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
@@ -18,6 +19,7 @@ interface ServerResult {
   port: number
   app: express.Express
   store: CanvasStore
+  wss: CanvasWebSocket
 }
 
 export async function createServer(options: ServerOptions = {}): Promise<ServerResult> {
@@ -34,13 +36,16 @@ export async function createServer(options: ServerOptions = {}): Promise<ServerR
     res.json({ status: 'ok' })
   })
 
-  app.use('/api', createApiRouter(store))
-
   return new Promise((resolve) => {
     const server = app.listen(options.port ?? 0, () => {
       const addr = server.address()
       const port = typeof addr === 'object' && addr ? addr.port : 0
-      resolve({ server, port, app, store })
+
+      const wss = new CanvasWebSocket(server, store)
+
+      app.use('/api', createApiRouter(store, (canvas) => wss.broadcastCanvasUpdate(canvas)))
+
+      resolve({ server, port, app, store, wss })
     })
   })
 }

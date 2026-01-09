@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import type { CanvasStore } from './canvas-store.js'
+import type { CanvasState } from './types.js'
 
-export function createApiRouter(store: CanvasStore): Router {
+export function createApiRouter(store: CanvasStore, broadcast?: (canvas: CanvasState) => void): Router {
   const router = Router()
 
   router.get('/canvas', async (req, res) => {
@@ -16,6 +17,10 @@ export function createApiRouter(store: CanvasStore): Router {
   router.put('/canvas', async (req, res) => {
     try {
       await store.setCanvas(req.body)
+      if (broadcast) {
+        const canvas = await store.getCanvas()
+        broadcast(canvas)
+      }
       res.json({ success: true })
     } catch (err) {
       res.status(500).json({ error: 'Failed to update canvas' })
@@ -47,6 +52,10 @@ export function createApiRouter(store: CanvasStore): Router {
   router.post('/savepoints/:name', async (req, res) => {
     try {
       await store.rollback(req.params.name)
+      if (broadcast) {
+        const canvas = await store.getCanvas()
+        broadcast(canvas)
+      }
       res.json({ success: true })
     } catch (err) {
       res.status(500).json({ error: 'Failed to rollback' })
