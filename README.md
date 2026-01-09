@@ -1,5 +1,7 @@
 # Claude Whiteboard
 
+> **Work in Progress** - Plugin installation is still being troubleshot. Check back soon.
+
 A collaborative AI-powered whiteboard where multiple participants use their own Claude Code instances to interact with a shared Excalidraw canvas.
 
 ## Quick Start
