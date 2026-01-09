@@ -79,7 +79,7 @@ program
 
     console.log(`✓ Server running on port ${port}`)
 
-    if (options.ngrok !== false) {
+    if (options.ngrok === true) {
       const token = await getNgrokToken(dataDir)
       const listener = await ngrok.connect({
         addr: port,

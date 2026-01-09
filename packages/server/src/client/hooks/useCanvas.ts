@@ -9,15 +9,15 @@ interface UseCanvasReturn {
   elements: ExcalidrawElement[]
   participantCount: number
   sessionName: string
+  version: number
   onChange: (elements: ExcalidrawElement[]) => void
-  onSavepoint: (name: string) => Promise<void>
-  onUndo: () => Promise<void>
 }
 
 export function useCanvas(): UseCanvasReturn {
   const [elements, setElements] = useState<ExcalidrawElement[]>([])
   const [participantCount, setParticipantCount] = useState(0)
   const [sessionName, setSessionName] = useState('loading...')
+  const [version, setVersion] = useState(0)
   const wsRef = useRef<WebSocket | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -31,6 +31,7 @@ export function useCanvas(): UseCanvasReturn {
       switch (message.type) {
         case 'canvas:update':
           setElements(message.payload.elements || [])
+          setVersion(v => v + 1)
           break
         case 'participants:update':
           setParticipantCount(message.payload.count)
@@ -66,22 +67,5 @@ export function useCanvas(): UseCanvasReturn {
     }, 100)
   }, [])
 
-  const onSavepoint = useCallback(async (name: string) => {
-    await fetch('/api/savepoints', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
-    })
-  }, [])
-
-  const onUndo = useCallback(async () => {
-    const res = await fetch('/api/savepoints')
-    const savepoints = await res.json()
-    if (savepoints.length > 0) {
-      const latest = savepoints[savepoints.length - 1]
-      await fetch(`/api/savepoints/${latest.name}`, { method: 'POST' })
-    }
-  }, [])
-
-  return { elements, participantCount, sessionName, onChange, onSavepoint, onUndo }
+  return { elements, participantCount, sessionName, version, onChange }
 }

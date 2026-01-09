@@ -6,7 +6,6 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "dev:server": "npm run dev --workspace=packages/server",
-    "dev:mcp": "npm run dev --workspace=packages/mcp"
+    "dev:server": "npm run dev --workspace=packages/server"
   }
 }

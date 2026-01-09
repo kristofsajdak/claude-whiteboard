@@ -48,7 +48,10 @@ export async function createServer(options: ServerOptions = {}): Promise<ServerR
 
       // Serve static files from dist/client
       const __dirname = path.dirname(fileURLToPath(import.meta.url))
-      const clientPath = path.join(__dirname, 'client')
+      // In dev mode (src/), look for ../dist/client; in prod (dist/), look for ./client
+      const clientPath = __dirname.endsWith('src')
+        ? path.join(__dirname, '..', 'dist', 'client')
+        : path.join(__dirname, 'client')
 
       app.use(express.static(clientPath))
 
