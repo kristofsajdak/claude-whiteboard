@@ -27,14 +27,29 @@ Open http://localhost:3000 in your browser.
 
 ### 3. Install the Claude Code plugin
 
-Add to your `~/.claude/settings.json`:
+Add the marketplace and enable the plugin in `~/.claude/settings.json`:
 
 ```json
 {
-  "plugins": [
-    "github:kristofsajdak/claude-whiteboard@master:plugin"
-  ]
+  "extraKnownMarketplaces": {
+    "claude-whiteboard": {
+      "source": {
+        "source": "github",
+        "repo": "kristofsajdak/claude-whiteboard"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "canvas@claude-whiteboard": true
+  }
 }
+```
+
+Or install via CLI:
+
+```bash
+/plugin marketplace add kristofsajdak/claude-whiteboard
+/plugin install canvas@claude-whiteboard
 ```
 
 Restart Claude Code.
@@ -43,7 +58,8 @@ Restart Claude Code.
 
 Run `/sandbox` in Claude Code and add your canvas server host to allowed network hosts (e.g., `localhost:3000`).
 
-Or add to your permissions:
+Or add to your permissions in `~/.claude/settings.json`:
+
 ```json
 {
   "permissions": {

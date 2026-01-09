@@ -1,0 +1,15 @@
+{
+  "name": "claude-whiteboard",
+  "description": "Collaborative AI-powered whiteboard for Claude Code",
+  "owner": {
+    "name": "Kristof Sajdak"
+  },
+  "plugins": [
+    {
+      "name": "canvas",
+      "source": "./plugin",
+      "description": "Canvas skill for interacting with Claude Whiteboard",
+      "version": "0.1.0"
+    }
+  ]
+}
