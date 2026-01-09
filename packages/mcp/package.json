@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
-    "test": "vitest"
+    "test": "echo 'No tests for MCP package yet'"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"

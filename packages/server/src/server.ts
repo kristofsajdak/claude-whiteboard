@@ -38,7 +38,7 @@ export async function createServer(options: ServerOptions = {}): Promise<ServerR
   })
 
   return new Promise((resolve) => {
-    const server = app.listen(options.port ?? 0, () => {
+    const server = app.listen(options.port ?? 0, '127.0.0.1', () => {
       const addr = server.address()
       const port = typeof addr === 'object' && addr ? addr.port : 0
 
