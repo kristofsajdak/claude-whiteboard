@@ -2,52 +2,85 @@
 
 A collaborative AI-powered whiteboard where multiple participants use their own Claude Code instances to interact with a shared Excalidraw canvas.
 
-## Packages
-
-- **[claude-whiteboard-server](./packages/server)** - Canvas server with Excalidraw UI
-- **[claude-whiteboard-mcp](./packages/mcp)** - MCP server for Claude Code integration
-
 ## Quick Start
 
-### 1. Start the canvas server
+### 1. Install and build the server
 
 ```bash
-npx claude-whiteboard-server
+git clone https://github.com/kristofsajdak/claude-whiteboard.git
+cd claude-whiteboard
+npm install
+npm run build
 ```
 
-This starts a local server and exposes it via ngrok. You'll get a shareable URL.
+### 2. Start the canvas server
 
-### 2. Share the URL
+```bash
+# Local only
+cd packages/server && npx tsx src/cli.ts --no-ngrok
 
-Send the ngrok URL to participants via WhatsApp, Slack, etc.
+# With ngrok (shareable URL)
+cd packages/server && npx tsx src/cli.ts
+```
 
-### 3. Participants connect their Claude Code
+Open http://localhost:3000 in your browser.
 
-Add the MCP server to Claude Code config:
+### 3. Install the Claude Code plugin
+
+Add to your `~/.claude/settings.json`:
 
 ```json
 {
-  "mcpServers": {
-    "canvas": {
-      "command": "npx",
-      "args": ["claude-whiteboard-mcp"]
-    }
+  "plugins": [
+    "github:kristofsajdak/claude-whiteboard@master:plugin"
+  ]
+}
+```
+
+Restart Claude Code.
+
+### 4. Configure sandbox (one-time)
+
+Run `/sandbox` in Claude Code and add your canvas server host to allowed network hosts (e.g., `localhost:3000`).
+
+Or add to your permissions:
+```json
+{
+  "permissions": {
+    "allow": ["Bash(curl:*)"]
   }
 }
 ```
 
-Then in Claude Code:
+### 5. Connect to the whiteboard
+
+In any project, tell Claude:
 
 ```
-"Connect to whiteboard https://abc123.ngrok.io"
+"Connect to whiteboard at http://localhost:3000"
 ```
+
+Claude will use the canvas skill to interact with the whiteboard directly.
 
 ## How It Works
 
 - **Browser**: View and directly edit the Excalidraw canvas
-- **Claude Code + MCP**: AI-assisted modifications using your local codebase as context
+- **Claude Code + Plugin**: AI-assisted modifications via direct HTTP calls
 
 All changes sync in real-time to all participants.
+
+## Sharing with Team
+
+1. Each team member installs the plugin (step 3 above)
+2. Start the server with ngrok: `npx tsx src/cli.ts`
+3. Share the ngrok URL with your team
+4. Everyone connects: `"Connect to whiteboard at https://abc123.ngrok.io"`
+
+## Packages
+
+- **[packages/server](./packages/server)** - Canvas server with Excalidraw UI
+- **[packages/mcp](./packages/mcp)** - MCP server (legacy, slower alternative)
+- **[plugin](./plugin)** - Claude Code plugin with canvas skill
 
 ## License
 

@@ -1,0 +1,11 @@
+{
+  "name": "claude-whiteboard",
+  "description": "Canvas skill for interacting with Claude Whiteboard - collaborative AI-powered whiteboard",
+  "version": "0.1.0",
+  "author": {
+    "name": "Kristof Sajdak"
+  },
+  "repository": "https://github.com/kristofsajdak/claude-whiteboard",
+  "license": "MIT",
+  "keywords": ["canvas", "whiteboard", "excalidraw", "collaboration", "drawing"]
+}
