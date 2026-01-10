@@ -210,10 +210,10 @@ Task(
 You are generating Excalidraw JSON for a collaborative whiteboard.
 
 CURRENT CANVAS STATE:
-{paste canvas JSON here}
+<CANVAS_STATE_JSON>
 
 USER REQUEST:
-{paste user request here}
+<USER_REQUEST>
 
 INSTRUCTIONS:
 1. Read the Excalidraw spec to understand element structure
@@ -231,7 +231,7 @@ CONSTRAINTS:
 )
 ```
 
-3. Take the returned elements array
+3. Take the returned complete elements array (including both existing and new elements)
 4. PUT to canvas:
 
 ```bash
@@ -239,6 +239,8 @@ curl -s -X PUT {URL}/api/canvas \
   -H "Content-Type: application/json" \
   -d '{"elements": [returned elements]}'
 ```
+
+**Note:** Curl commands require `dangerouslyDisableSandbox: true` for localhost access.
 
 5. Report what was added/changed
 
