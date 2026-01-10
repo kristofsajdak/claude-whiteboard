@@ -35,6 +35,12 @@ Returns JSON with `elements` array. Summarize what's there rather than dumping r
 
 ## Updating Canvas
 
+**For element properties, bindings, and examples, read `EXCALIDRAW-SPEC.md` in this skill directory.**
+
+Element types: `rectangle`, `ellipse`, `diamond`, `text`, `arrow`, `line`, `freedraw`, `image`, `frame`
+
+**Always use arrow bindings** for flow diagrams, sequence diagrams, and any connected shapes. Bindings keep arrows attached when shapes move.
+
 ### Full Replace (when regenerating everything)
 
 ```bash
@@ -48,32 +54,6 @@ curl -s -X PUT {URL}/api/canvas \
 1. Get current canvas
 2. Append new element(s) to the elements array
 3. Set the updated canvas
-
-Each Excalidraw element needs at minimum:
-- `id`: unique string (generate: `{type}-{Date.now()}-{random4chars}`)
-- `type`: rectangle, ellipse, diamond, text, arrow, line, freedraw
-- `x`, `y`: position coordinates
-- `width`, `height`: dimensions (except for line/arrow which use points)
-- `strokeColor`: border color (e.g., "#1e1e1e")
-- `backgroundColor`: fill color (e.g., "#a5d8ff") or "transparent"
-- `fillStyle`: "solid", "hachure", or "cross-hatch"
-- `strokeWidth`: 1, 2, or 4
-- `roughness`: 0 (sharp), 1 (normal), 2 (sketchy)
-- `opacity`: 100 (fully opaque)
-- `angle`: 0 (no rotation)
-- `seed`: random number for roughjs rendering
-
-For text elements, also include:
-- `text`: the actual text content
-- `fontSize`: number (e.g., 20)
-- `fontFamily`: 1 (hand-drawn), 2 (normal), 3 (monospace)
-- `textAlign`: "left", "center", "right"
-- `verticalAlign`: "top", "middle"
-
-For arrows/lines, use `points` array instead of width/height:
-- `points`: [[0, 0], [100, 50]] (relative coordinates from x,y)
-- `startArrowhead`: null, "arrow", "bar", "dot", "triangle"
-- `endArrowhead`: null, "arrow", "bar", "dot", "triangle"
 
 ### Updating Specific Elements
 
@@ -128,17 +108,26 @@ curl -s -X PUT http://localhost:3000/api/canvas \
   -d '{"elements": [...existing..., {
     "id": "rect-1704567890-a1b2",
     "type": "rectangle",
-    "x": 100,
-    "y": 100,
-    "width": 200,
-    "height": 100,
+    "x": 100, "y": 100,
+    "width": 200, "height": 100,
     "strokeColor": "#1e1e1e",
     "backgroundColor": "#a5d8ff",
     "fillStyle": "solid",
     "strokeWidth": 2,
+    "strokeStyle": "solid",
     "roughness": 1,
     "opacity": 100,
     "angle": 0,
-    "seed": 12345
+    "seed": 12345,
+    "version": 1,
+    "versionNonce": 67890,
+    "isDeleted": false,
+    "groupIds": [],
+    "boundElements": null,
+    "updated": 1704567890000,
+    "link": null,
+    "locked": false,
+    "frameId": null,
+    "roundness": {"type": 3}
   }]}'
 ```
