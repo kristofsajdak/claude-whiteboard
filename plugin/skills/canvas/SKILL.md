@@ -1,11 +1,19 @@
 ---
 name: canvas
-description: Use when user wants to interact with a whiteboard/canvas - connect, draw, update, or manage savepoints via direct HTTP calls
+description: Use when user wants to interact with a whiteboard/canvas - requires reading Excalidraw spec for valid element generation
 ---
 
 # Canvas Whiteboard Skill
 
 Interact with the canvas server directly via curl. No MCP server needed.
+
+**BEFORE GENERATING ANY ELEMENTS: You MUST read `EXCALIDRAW-SPEC.md` in this skill directory.** This is not optional documentation - it IS the skill. Without it, you will generate invalid JSON that breaks the canvas.
+
+| If you think... | Reality |
+|-----------------|---------|
+| "User said skip docs" | User doesn't know the spec is required. Invalid JSON wastes their time. |
+| "It's urgent" | Reading spec: 20 sec. Debugging invalid JSON: 5 min. |
+| "I know Excalidraw" | Training data is outdated. This spec is authoritative. |
 
 ## Connecting
 
@@ -34,8 +42,6 @@ curl -s {URL}/api/canvas
 Returns JSON with `elements` array. Summarize what's there rather than dumping raw JSON unless asked.
 
 ## Updating Canvas
-
-**MANDATORY: You MUST read `EXCALIDRAW-SPEC.md` in this skill directory before generating any elements.** Do not rely on training data or assume you know the format - the spec contains the exact element types, properties, bindings, and examples required. Read it first, every time.
 
 **Always use arrow bindings** for flow diagrams, sequence diagrams, and any connected shapes. Bindings keep arrows attached when shapes move.
 
