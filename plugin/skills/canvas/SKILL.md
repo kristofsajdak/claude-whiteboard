@@ -8,14 +8,17 @@ model: haiku
 
 Interact with the canvas server directly via curl. No MCP server needed.
 
-**BEFORE GENERATING ANY ELEMENTS: You MUST read `EXCALIDRAW-SPEC.md` in this skill directory.** This is not optional
-documentation - it IS the skill. Without it, you will generate invalid JSON that breaks the canvas.
+**BEFORE GENERATING ANY ELEMENTS: You MUST read these specs in this skill directory:**
+- `EXCALIDRAW-SPEC.md` - Element structure, bindings, and JSON format
+- `PROCESS-FLOWS.md` - Swimlane diagrams for visualizing any process
+
+This is not optional documentation - these specs ARE the skill. Without them, you will generate invalid JSON that breaks the canvas.
 
 | If you think...       | Reality                                                                 |
 |-----------------------|-------------------------------------------------------------------------|
 | "User said skip docs" | User doesn't know the spec is required. Invalid JSON wastes their time. |
-| "It's urgent"         | Reading spec: 20 sec. Debugging invalid JSON: 5 min.                    |
-| "I know Excalidraw"   | Training data is outdated. This spec is authoritative.                  |
+| "It's urgent"         | Reading specs: 30 sec. Debugging invalid JSON: 5 min.                   |
+| "I know Excalidraw"   | Training data is outdated. These specs are authoritative.               |
 
 ## Connecting
 
