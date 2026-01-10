@@ -42,15 +42,40 @@ When user provides a URL:
 3. Store URL for subsequent operations
 4. Report: "Connected to '{session.name}' at {URL}"
 
-## Reading Canvas
+## Admin Operations (Haiku Direct)
 
-When user asks what's on the canvas or needs current state:
+Execute these operations directly via curl. No complex reasoning needed.
+
+**Guidelines:**
+- Summarize, don't dump - describe canvas contents in natural language
+
+### Get Canvas
 
 ```bash
 curl -s {URL}/api/canvas
 ```
 
-Returns JSON with `elements` array. Summarize what's there rather than dumping raw JSON unless asked.
+Returns JSON with `elements` array. Describe what's on the canvas rather than dumping raw JSON.
+
+### Create Savepoint
+
+```bash
+curl -s -X POST {URL}/api/savepoints \
+  -H "Content-Type: application/json" \
+  -d '{"name": "savepoint-name"}'
+```
+
+### List Savepoints
+
+```bash
+curl -s {URL}/api/savepoints
+```
+
+### Rollback to Savepoint
+
+```bash
+curl -s -X POST {URL}/api/savepoints/{name}
+```
 
 ## Updating Canvas
 
@@ -80,28 +105,6 @@ curl -s -X PUT {URL}/api/canvas \
 1. Get current canvas
 2. Filter out element(s) by id
 3. Set the updated canvas
-
-## Savepoints
-
-### Create savepoint
-
-```bash
-curl -s -X POST {URL}/api/savepoints \
-  -H "Content-Type: application/json" \
-  -d '{"name": "checkpoint-name"}'
-```
-
-### List savepoints
-
-```bash
-curl -s {URL}/api/savepoints
-```
-
-### Rollback to savepoint
-
-```bash
-curl -s -X POST {URL}/api/savepoints/{name}
-```
 
 ## Guidelines
 
