@@ -137,19 +137,3 @@ curl -s -X POST {URL}/api/savepoints/{name}
 4. **Summarize, don't dump** - Describe canvas contents in natural language
 5. **Create savepoints before big changes** - Suggest this to user proactively
 6. **Use dangerouslyDisableSandbox** - All curl commands need sandbox disabled for localhost access
-
-## Performance
-
-Use **Task tool with `model: haiku`** for mechanical operations:
-
-- Connect / health check
-- Get canvas JSON
-- PUT canvas update (after content is generated)
-- Savepoint operations (list, create, rollback)
-
-Reserve the **main conversation** (best model) for:
-
-- Understanding user intent
-- Analyzing canvas state
-- Generating new Excalidraw elements
-- Reading and applying EXCALIDRAW-SPEC.md

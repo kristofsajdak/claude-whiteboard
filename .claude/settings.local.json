@@ -12,10 +12,8 @@
       "Skill(superpowers:finishing-a-development-branch)",
       "Skill(superpowers:brainstorming)",
       "Skill(canvas)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ]
-  },
-  "disabledMcpjsonServers": [
-    "canvas"
-  ]
+  }
 }
