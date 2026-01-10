@@ -108,19 +108,24 @@ For simple requests like "add a box", "add a circle":
   "strokeStyle": "solid",
   "roughness": 1,
   "opacity": 100,
-  "seed": 12345,
+  "seed": 12345,           // Use random value
   "version": 1,
-  "versionNonce": 67890,
+  "versionNonce": 67890,   // Use random value
   "isDeleted": false,
   "groupIds": [],
   "boundElements": null,
-  "updated": 1704567890000,
+  "updated": 1704567890000, // Use Date.now()
   "link": null,
   "locked": false,
   "frameId": null,
   "roundness": {"type": 3}
 }
 ```
+
+**Note:** For other shapes, change the `type` field:
+- Circle: `"type": "ellipse"` (set equal width/height)
+- Diamond: `"type": "diamond"`
+- Ellipse: `"type": "ellipse"`
 
 3. PUT updated canvas
 
@@ -162,6 +167,8 @@ curl -s -X PUT {URL}/api/canvas \
   -H "Content-Type: application/json" \
   -d '{"elements": []}'
 ```
+
+**Note:** Curl commands require `dangerouslyDisableSandbox: true` for localhost access.
 
 ### When to Escalate to Opus
 
