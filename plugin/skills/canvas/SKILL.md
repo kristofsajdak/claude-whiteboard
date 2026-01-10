@@ -48,6 +48,7 @@ Execute these operations directly via curl. No complex reasoning needed.
 
 **Guidelines:**
 - Summarize, don't dump - describe canvas contents in natural language
+- All curl commands need `dangerouslyDisableSandbox: true` for localhost access
 
 ### Get Canvas
 
@@ -216,7 +217,7 @@ USER REQUEST:
 <USER_REQUEST>
 
 INSTRUCTIONS:
-1. Read the Excalidraw spec to understand element structure
+1. First, read plugin/skills/canvas/EXCALIDRAW-SPEC.md for valid element structure
 2. Analyze current canvas to understand existing elements and layout
 3. Generate the minimal changes needed to fulfill the request
 4. Return ONLY the complete updated elements array as JSON
