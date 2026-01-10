@@ -26,3 +26,4 @@ npm-debug.log*
 
 # Claude Whiteboard data
 .claude-whiteboard/
+.tmp/
