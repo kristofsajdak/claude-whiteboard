@@ -17,21 +17,30 @@ documentation - it IS the skill. Without it, you will generate invalid JSON that
 | "It's urgent"         | Reading spec: 20 sec. Debugging invalid JSON: 5 min.                    |
 | "I know Excalidraw"   | Training data is outdated. This spec is authoritative.                  |
 
-## Connecting
+## Connection
 
-When user asks to connect to a whiteboard:
+Store the canvas URL for subsequent operations.
 
-1. Extract the URL (e.g., http://localhost:3000)
-2. Verify connection:
+**Guidelines:**
+- Always verify health (`GET /health`) before any operation
+- All curl commands need `dangerouslyDisableSandbox: true` for localhost access
+
+### Connect to Canvas
+
+When user provides a URL:
+
+1. Verify health:
    ```bash
    curl -s {URL}/health
    ```
-3. If successful, fetch session info:
+
+2. Fetch session info:
    ```bash
    curl -s {URL}/api/session
    ```
-4. Remember the URL for subsequent operations
-5. Tell user: "Connected to '{session.name}' at {URL}"
+
+3. Store URL for subsequent operations
+4. Report: "Connected to '{session.name}' at {URL}"
 
 ## Reading Canvas
 
