@@ -1,6 +1,7 @@
 ---
 name: canvas
-description: Use when user wants to interact with a whiteboard/canvas - requires reading Excalidraw spec for valid element generation
+description: Use when user wants to interact with a whiteboard/canvas - connect, draw, update, or manage savepoints via direct HTTP calls
+model: haiku
 ---
 
 # Canvas Whiteboard Skill
