@@ -131,3 +131,17 @@ curl -s -X PUT http://localhost:3000/api/canvas \
     "roundness": {"type": 3}
   }]}'
 ```
+
+## Performance
+
+Use **Task tool with `model: haiku`** for mechanical operations:
+- Connect / health check
+- Get canvas JSON
+- PUT canvas update (after content is generated)
+- Savepoint operations (list, create, rollback)
+
+Reserve the **main conversation** (best model) for:
+- Understanding user intent
+- Analyzing canvas state
+- Generating new Excalidraw elements
+- Reading and applying EXCALIDRAW-SPEC.md
