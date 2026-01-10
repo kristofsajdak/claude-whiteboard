@@ -1,6 +1,6 @@
 ---
 name: canvas
-description: Use when user wants to interact with a whiteboard/canvas - connect, draw, update, or manage savepoints via direct HTTP calls
+description: Use when user wants to interact with a whiteboard/canvas - requires reading Excalidraw spec for valid element generation
 model: haiku
 ---
 
@@ -17,230 +17,88 @@ documentation - it IS the skill. Without it, you will generate invalid JSON that
 | "It's urgent"         | Reading spec: 20 sec. Debugging invalid JSON: 5 min.                    |
 | "I know Excalidraw"   | Training data is outdated. This spec is authoritative.                  |
 
-## Connection
+## Connecting
 
-Store the canvas URL for subsequent operations.
+When user asks to connect to a whiteboard:
 
-**Guidelines:**
-- Always verify health (`GET /health`) before any operation
-- All curl commands need `dangerouslyDisableSandbox: true` for localhost access
-
-### Connect to Canvas
-
-When user provides a URL:
-
-1. Verify health:
+1. Extract the URL (e.g., http://localhost:3000)
+2. Verify connection:
    ```bash
    curl -s {URL}/health
    ```
-
-2. Fetch session info:
+3. If successful, fetch session info:
    ```bash
    curl -s {URL}/api/session
    ```
+4. Remember the URL for subsequent operations
+5. Tell user: "Connected to '{session.name}' at {URL}"
 
-3. Store URL for subsequent operations
-4. Report: "Connected to '{session.name}' at {URL}"
+## Reading Canvas
 
-## Admin Operations (Haiku Direct)
-
-Execute these operations directly via curl. No complex reasoning needed.
-
-**Guidelines:**
-- Summarize, don't dump - describe canvas contents in natural language
-- All curl commands need `dangerouslyDisableSandbox: true` for localhost access
-
-### Get Canvas
+When user asks what's on the canvas or needs current state:
 
 ```bash
 curl -s {URL}/api/canvas
 ```
 
-Returns JSON with `elements` array. Describe what's on the canvas rather than dumping raw JSON.
+Returns JSON with `elements` array. Summarize what's there rather than dumping raw JSON unless asked.
 
-### Create Savepoint
+## Updating Canvas
+
+### Full Replace (when regenerating everything)
+
+```bash
+curl -s -X PUT {URL}/api/canvas \
+  -H "Content-Type: application/json" \
+  -d '{"elements": [...]}'
+```
+
+### Adding Elements (preferred for incremental work)
+
+1. Get current canvas
+2. Append new element(s) to the elements array
+3. Set the updated canvas
+
+### Updating Specific Elements
+
+1. Get current canvas
+2. Find element by id
+3. Modify properties
+4. Set the updated canvas
+
+### Deleting Elements
+
+1. Get current canvas
+2. Filter out element(s) by id
+3. Set the updated canvas
+
+## Savepoints
+
+### Create savepoint
 
 ```bash
 curl -s -X POST {URL}/api/savepoints \
   -H "Content-Type: application/json" \
-  -d '{"name": "savepoint-name"}'
+  -d '{"name": "checkpoint-name"}'
 ```
 
-### List Savepoints
+### List savepoints
 
 ```bash
 curl -s {URL}/api/savepoints
 ```
 
-### Rollback to Savepoint
+### Rollback to savepoint
 
 ```bash
 curl -s -X POST {URL}/api/savepoints/{name}
 ```
 
-## Mechanical Operations (Haiku Templates)
+## Guidelines
 
-Single-element modifications using predefined templates. Use when the operation is unambiguous.
-
-**Guidelines:**
-- Always GET current state first - preserve existing elements
-- Generate unique IDs: `{type}-{timestamp}-{random4chars}`
-
-### Add Single Shape
-
-For simple requests like "add a box", "add a circle":
-
-1. GET current canvas
-2. Append new element using template:
-
-```json
-{
-  "id": "{type}-{Date.now()}-{random4chars}",
-  "type": "rectangle",
-  "x": 200,
-  "y": 200,
-  "width": 200,
-  "height": 100,
-  "angle": 0,
-  "strokeColor": "#1e1e1e",
-  "backgroundColor": "transparent",
-  "fillStyle": "solid",
-  "strokeWidth": 2,
-  "strokeStyle": "solid",
-  "roughness": 1,
-  "opacity": 100,
-  "seed": 12345,           // Use random value
-  "version": 1,
-  "versionNonce": 67890,   // Use random value
-  "isDeleted": false,
-  "groupIds": [],
-  "boundElements": null,
-  "updated": 1704567890000, // Use Date.now()
-  "link": null,
-  "locked": false,
-  "frameId": null,
-  "roundness": {"type": 3}
-}
-```
-
-**Note:** For other shapes, change the `type` field:
-- Circle: `"type": "ellipse"` (set equal width/height)
-- Diamond: `"type": "diamond"`
-- Ellipse: `"type": "ellipse"`
-
-3. PUT updated canvas
-
-### Edit Text/Label
-
-For requests like "change label to X", "update the text":
-
-1. GET current canvas
-2. Find element where `text` contains search string (case-insensitive)
-3. Update the `text` and `originalText` fields
-4. PUT updated canvas
-
-### Change Property
-
-For requests like "make it blue", "make it bigger":
-
-1. GET current canvas
-2. Find element by text content or description
-3. Update single field:
-   - Color: `strokeColor` or `backgroundColor`
-   - Size: `width`, `height`, `fontSize`
-4. PUT updated canvas
-
-### Delete Element
-
-For requests like "remove the box", "delete the arrow":
-
-1. GET current canvas
-2. Find element by text or type
-3. Filter it from elements array
-4. PUT updated canvas
-
-### Clear Canvas
-
-For "clear the canvas", "start fresh":
-
-```bash
-curl -s -X PUT {URL}/api/canvas \
-  -H "Content-Type: application/json" \
-  -d '{"elements": []}'
-```
-
-**Note:** Curl commands require `dangerouslyDisableSandbox: true` for localhost access.
-
-### When to Escalate to Opus
-
-If the request contains any of these, use Semantic Operations instead:
-- Concepts requiring interpretation ("auth service", "user flow")
-- Spatial relationships ("below", "next to", "connected to")
-- Multi-element scope ("flowchart", "diagram", "sequence")
-- Aesthetic judgments ("professional", "clean", "organized")
-
-**When in doubt, escalate to Opus.**
-
-## Semantic Operations (Opus Subagent)
-
-Complex modifications requiring understanding of intent, relationships, or layout.
-
-**Guidelines:**
-- Always GET current state first - preserve existing elements
-- Generate unique IDs: `{type}-{timestamp}-{random4chars}`
-- Create savepoints before big changes - suggest proactively
-
-### When to Use
-
-Use this section for:
-- "Add a box for the auth service" (intent interpretation)
-- "Draw a flowchart of the login process" (multi-element layout)
-- "Add an arrow from A to B" (spatial relationships)
-- "Make it look professional" (aesthetic judgment)
-
-### Process
-
-1. GET current canvas state
-2. Spawn Opus subagent using Task tool:
-
-```
-Task(
-  model: opus,
-  subagent_type: general-purpose,
-  prompt: """
-You are generating Excalidraw JSON for a collaborative whiteboard.
-
-CURRENT CANVAS STATE:
-<CANVAS_STATE_JSON>
-
-USER REQUEST:
-<USER_REQUEST>
-
-INSTRUCTIONS:
-1. First, read plugin/skills/canvas/EXCALIDRAW-SPEC.md for valid element structure
-2. Analyze current canvas to understand existing elements and layout
-3. Generate the minimal changes needed to fulfill the request
-4. Return ONLY the complete updated elements array as JSON
-
-CONSTRAINTS:
-- Preserve all existing element IDs
-- Position new elements to avoid overlap
-- Use consistent styling with existing elements
-- Generate unique IDs: {type}-{timestamp}-{random4chars}
-- Reference EXCALIDRAW-SPEC.md for valid element structure
-"""
-)
-```
-
-3. Take the returned complete elements array (including both existing and new elements)
-4. PUT to canvas:
-
-```bash
-curl -s -X PUT {URL}/api/canvas \
-  -H "Content-Type: application/json" \
-  -d '{"elements": [returned elements]}'
-```
-
-**Note:** Curl commands require `dangerouslyDisableSandbox: true` for localhost access.
-
-5. Report what was added/changed
+1. **Always connect first** - Verify health before any operation
+2. **Preserve existing elements** - When adding, always get current state first
+3. **Generate unique IDs** - Use format: `{type}-{timestamp}-{random4chars}`
+4. **Summarize, don't dump** - Describe canvas contents in natural language
+5. **Create savepoints before big changes** - Suggest this to user proactively
+6. **Use dangerouslyDisableSandbox** - All curl commands need sandbox disabled for localhost access
