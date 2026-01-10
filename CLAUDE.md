@@ -28,3 +28,7 @@ Prompt: Extract the complete guide for creating, configuring, and best practices
 ```
 
 This ensures we follow current best practices and avoid hallucinations about skill syntax and capabilities.
+
+Always bump the plugin version in `plugin/.claude-plugin/plugin.json` before pushing to the remote. Use semantic versioning:
+- **Patch** (0.x.Y) - bug fixes, small tweaks
+- **Minor** (0.X.0) - new features, significant changes
