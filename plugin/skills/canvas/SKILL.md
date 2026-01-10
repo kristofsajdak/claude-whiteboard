@@ -180,6 +180,68 @@ If the request contains any of these, use Semantic Operations instead:
 
 **When in doubt, escalate to Opus.**
 
+## Semantic Operations (Opus Subagent)
+
+Complex modifications requiring understanding of intent, relationships, or layout.
+
+**Guidelines:**
+- Always GET current state first - preserve existing elements
+- Generate unique IDs: `{type}-{timestamp}-{random4chars}`
+- Create savepoints before big changes - suggest proactively
+
+### When to Use
+
+Use this section for:
+- "Add a box for the auth service" (intent interpretation)
+- "Draw a flowchart of the login process" (multi-element layout)
+- "Add an arrow from A to B" (spatial relationships)
+- "Make it look professional" (aesthetic judgment)
+
+### Process
+
+1. GET current canvas state
+2. Spawn Opus subagent using Task tool:
+
+```
+Task(
+  model: opus,
+  subagent_type: general-purpose,
+  prompt: """
+You are generating Excalidraw JSON for a collaborative whiteboard.
+
+CURRENT CANVAS STATE:
+{paste canvas JSON here}
+
+USER REQUEST:
+{paste user request here}
+
+INSTRUCTIONS:
+1. Read the Excalidraw spec to understand element structure
+2. Analyze current canvas to understand existing elements and layout
+3. Generate the minimal changes needed to fulfill the request
+4. Return ONLY the complete updated elements array as JSON
+
+CONSTRAINTS:
+- Preserve all existing element IDs
+- Position new elements to avoid overlap
+- Use consistent styling with existing elements
+- Generate unique IDs: {type}-{timestamp}-{random4chars}
+- Reference EXCALIDRAW-SPEC.md for valid element structure
+"""
+)
+```
+
+3. Take the returned elements array
+4. PUT to canvas:
+
+```bash
+curl -s -X PUT {URL}/api/canvas \
+  -H "Content-Type: application/json" \
+  -d '{"elements": [returned elements]}'
+```
+
+5. Report what was added/changed
+
 ## Updating Canvas
 
 ### Full Replace (when regenerating everything)
