@@ -59,6 +59,36 @@ Claude will use the whiteboard skills to interact with the canvas directly.
 
 All changes sync in real-time to all participants.
 
+## Skills
+
+The plugin provides three skills that work together:
+
+| Skill | Trigger | Purpose |
+|-------|---------|---------|
+| `whiteboard:whiteboard` | "connect to whiteboard", "read canvas", "push to whiteboard" | I/O operations with the canvas server |
+| `whiteboard:excalidraw` | "convert to excalidraw", "describe this diagram" | Bidirectional conversion between natural language and Excalidraw JSON |
+| `whiteboard:plantuml` | "convert to plantuml", "parse this plantuml" | Bidirectional conversion between PlantUML and natural language |
+
+### Example Workflows
+
+**Create a diagram from description:**
+```
+"Draw a swimlane diagram showing user authentication flow with Login, API, and Database actors"
+```
+→ Uses `excalidraw` skill to generate JSON, then `whiteboard` skill to push to canvas
+
+**Convert PlantUML to whiteboard:**
+```
+"Convert this PlantUML to the whiteboard: @startuml ... @enduml"
+```
+→ Uses `plantuml` skill to parse to natural language, then `excalidraw` skill to generate JSON, then `whiteboard` skill to push
+
+**Describe what's on the canvas:**
+```
+"What's currently on the whiteboard?"
+```
+→ Uses `whiteboard` skill to read, then `excalidraw` skill to describe in natural language
+
 ## Sharing with Team
 
 1. Each team member installs the plugin (step 3 above)
@@ -69,7 +99,6 @@ All changes sync in real-time to all participants.
 ## Packages
 
 - **[packages/server](./packages/server)** - Canvas server with Excalidraw UI
-- **[packages/mcp](./packages/mcp)** - MCP server (legacy, slower alternative)
 - **[plugin](./plugin)** - Claude Code plugin with whiteboard skills (I/O, Excalidraw, PlantUML)
 
 ## License
