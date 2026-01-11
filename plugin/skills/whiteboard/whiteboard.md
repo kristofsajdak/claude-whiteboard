@@ -54,25 +54,6 @@ curl -s -X PUT {URL}/api/canvas \
   -d '{"elements": [...]}'
 ```
 
-### Adding Elements (preferred for incremental work)
-
-1. Get current canvas
-2. Append new element(s) to the elements array
-3. Set the updated canvas
-
-### Updating Specific Elements
-
-1. Get current canvas
-2. Find element by id
-3. Modify properties
-4. Set the updated canvas
-
-### Deleting Elements
-
-1. Get current canvas
-2. Filter out element(s) by id
-3. Set the updated canvas
-
 ## Savepoints
 
 ### Create savepoint
