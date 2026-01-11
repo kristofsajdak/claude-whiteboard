@@ -151,6 +151,15 @@ Boxes use the same lane color but with lighter fill:
 }
 ```
 
+### Arrow Styling (REQUIRED)
+
+**All arrow segments MUST be straight.** Do NOT use curved arrows.
+
+Required property:
+- `roundness: null` - no curves, straight segments only
+
+Multi-segment arrows (more than 2 points) are allowed when needed to route around elements.
+
 ### Arrow Binding (Bidirectional - REQUIRED)
 
 For arrows to stay connected when dragging, binding must be declared on BOTH sides:
@@ -169,8 +178,6 @@ For arrows to stay connected when dragging, binding must be declared on BOTH sid
   "endArrowhead": "arrow"
 }
 ```
-
-**For straight arrows:** Use `roundness: null` and exactly 2 points.
 
 ### Arrow Labels
 
