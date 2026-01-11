@@ -230,7 +230,7 @@ Output the **raw Excalidraw JSON** directly to chat:
 When user wants a description of Excalidraw content:
 
 1. **Identify diagram type** by examining element patterns:
-   - Swimlane headers at y=50 → Activity/Process diagram
+   - Swimlane headers → Activity/Process diagram
    - Rectangles with inheritance arrows → Class diagram
    - Time-ordered elements → Sequence diagram
 

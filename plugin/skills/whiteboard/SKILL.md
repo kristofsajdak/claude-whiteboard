@@ -16,7 +16,20 @@ Pure I/O operations for the whiteboard canvas server. Connect, read, write, save
 
 **This skill does NOT handle:**
 - Format conversion (use whiteboard:excalidraw)
-- PlantUML parsing (use whiteboard:plantuml)
+
+## Diagram Generation Requirement
+
+**When creating or updating diagrams on the canvas, you MUST invoke whiteboard:excalidraw first.**
+
+This skill is for I/O only. Do NOT:
+- Generate Excalidraw JSON inline in curl commands
+- Craft element arrays directly when calling the canvas API
+
+Workflow:
+1. Invoke `whiteboard:excalidraw` skill → generates valid Excalidraw JSON
+2. Use this skill's canvas API → writes the JSON to canvas
+
+The excalidraw skill enforces spec compliance, proper bindings, and consistent styling. Bypassing it leads to broken diagrams.
 
 ## Connecting
 
