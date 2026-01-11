@@ -1,11 +1,11 @@
 {
-  "name": "canvas",
-  "description": "Canvas skill for interacting with Claude Whiteboard - collaborative AI-powered whiteboard",
-  "version": "0.7.0",
+  "name": "whiteboard",
+  "description": "Whiteboard plugin for Claude Code - canvas operations and diagram generation",
+  "version": "0.8.0",
   "author": {
     "name": "Kristof Sajdak"
   },
   "repository": "https://github.com/kristofsajdak/claude-whiteboard",
   "license": "MIT",
-  "keywords": ["canvas", "whiteboard", "excalidraw", "collaboration", "drawing"]
+  "keywords": ["canvas", "whiteboard", "excalidraw", "collaboration", "drawing", "diagrams", "swimlane"]
 }
