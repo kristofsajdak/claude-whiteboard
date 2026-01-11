@@ -179,6 +179,30 @@ For arrows to stay connected when dragging, binding must be declared on BOTH sid
 }
 ```
 
+### Arrow Positioning (REQUIRED)
+
+**Bindings don't auto-position arrows.** The `startBinding`/`endBinding` properties maintain connections during drag operations, but the arrow's `(x, y)` must be calculated to visually touch the shape's edge.
+
+**For rectangles** (edges are axis-aligned):
+
+| Exit Direction | Arrow (x, y) Position |
+|----------------|----------------------|
+| Right edge     | `(shape.x + shape.width, shape.y + shape.height/2)` |
+| Left edge      | `(shape.x, shape.y + shape.height/2)` |
+| Bottom edge    | `(shape.x + shape.width/2, shape.y + shape.height)` |
+| Top edge       | `(shape.x + shape.width/2, shape.y)` |
+
+**For diamonds** (vertices, not mid-edge):
+
+| Exit Direction | Arrow (x, y) Position |
+|----------------|----------------------|
+| Right vertex   | `(shape.x + shape.width, shape.y + shape.height/2)` |
+| Left vertex    | `(shape.x, shape.y + shape.height/2)` |
+| Bottom vertex  | `(shape.x + shape.width/2, shape.y + shape.height)` |
+| Top vertex     | `(shape.x + shape.width/2, shape.y)` |
+
+For mid-edge exits on diamonds (not at vertices), calculate the intersection point on the angled edge.
+
 ### Arrow Labels
 
 Labels bound to arrows move with them:
