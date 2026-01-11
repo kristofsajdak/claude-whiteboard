@@ -66,7 +66,7 @@ When source is PlantUML:
 
 1. **Read [PLANTUML-SPEC.md](PLANTUML-SPEC.md)** for syntax reference
 2. **Identify diagram type** from content:
-   - `start`/`stop` with `:action;` → Activity diagram → Use swimlane styling
+   - `start`/`stop` with `:action;` → Activity diagram → Use Activity Diagram Styling
    - `class`/`interface` → Class diagram → Use generic styling
    - `participant` → Sequence diagram → Use generic styling
    - `[*]` transitions → State diagram → Use generic styling
@@ -81,7 +81,7 @@ When source is a description:
 
 | Description Contains... | Diagram Type | Use Styling |
 |------------------------|--------------|-------------|
-| "process", "workflow", "activity", "swimlane", "steps", "flow" | Activity/Process | Swimlane Styling |
+| "process", "workflow", "activity", "swimlane", "steps", "flow" | Activity/Process | Activity Diagram Styling |
 | "class", "object", "inheritance", "UML", "architecture" | Class Diagram | Generic Styling |
 | "sequence", "interaction", "message", "timeline" | Sequence Diagram | Generic Styling |
 | Generic without clear type | Generic | Generic Styling |
@@ -91,7 +91,7 @@ When source is a description:
 
 ---
 
-## Swimlane Styling (Activity/Process Diagrams)
+## Activity Diagram Styling
 
 Use for process flows, workflows, and activity diagrams.
 
@@ -275,19 +275,6 @@ Small ellipses to mark flow boundaries.
 }
 ```
 
-### PlantUML Shape Mapping
-
-When converting from PlantUML, note these defaults differ:
-
-| PlantUML Construct        | PlantUML Renders  | Excalidraw Equivalent           |
-|---------------------------|-------------------|---------------------------------|
-| `if/then/else` (decision) | Hexagon           | Diamond                         |
-| `endif` (merge)           | Diamond           | Diamond or implicit             |
-| `fork/end fork`           | Bar               | Thin rectangle                  |
-| `:action;`                | Rounded rectangle | Rounded rectangle               |
-| `start`                   | Filled circle     | Small filled ellipse            |
-| `stop`                    | Circle with ring  | Small ellipse with thick stroke |
-
 ---
 
 ## Generic Styling (Non-Activity Diagrams)
@@ -322,6 +309,25 @@ Output the **raw Excalidraw JSON** directly to chat:
 
 ---
 
+## PlantUML ↔ Excalidraw Shape Mapping (Activity Diagrams)
+
+When converting activity diagrams between PlantUML and Excalidraw, use this mapping. Note that PlantUML renders shapes differently than standard UML:
+
+| PlantUML Construct        | PlantUML Renders  | Excalidraw Equivalent           |
+|---------------------------|-------------------|---------------------------------|
+| `if/then/else` (decision) | Hexagon           | Diamond                         |
+| `endif` (merge)           | Diamond           | Diamond or implicit             |
+| `fork/end fork`           | Bar               | Thin rectangle                  |
+| `:action;`                | Rounded rectangle | Rounded rectangle               |
+| `start`                   | Filled circle     | Small filled ellipse            |
+| `stop`                    | Circle with ring  | Small ellipse with thick stroke |
+
+This mapping applies in both directions:
+- **PlantUML → Excalidraw**: Use when generating Excalidraw from PlantUML source
+- **Excalidraw → PlantUML**: Use when converting Excalidraw diagrams to PlantUML output
+
+---
+
 # Parsing Excalidraw JSON
 
 ## To Natural Language
@@ -329,7 +335,7 @@ Output the **raw Excalidraw JSON** directly to chat:
 When user wants a description of Excalidraw content:
 
 1. **Identify diagram type** by examining element patterns:
-   - Swimlane headers → Activity/Process diagram
+   - Lane headers with colored boxes → Activity/Process diagram
    - Rectangles with inheritance arrows → Class diagram
    - Time-ordered elements → Sequence diagram
 
@@ -362,16 +368,17 @@ When user wants PlantUML output from Excalidraw:
 
 1. **Read [PLANTUML-SPEC.md](PLANTUML-SPEC.md)** for syntax reference
 2. **Identify diagram type** from Excalidraw structure
-3. **Map elements to PlantUML syntax:**
+3. **For activity diagrams**, use the PlantUML ↔ Excalidraw Shape Mapping section above
+4. **Map elements to PlantUML syntax:**
 
 | Excalidraw Pattern | PlantUML Output |
 |--------------------|-----------------|
-| Swimlane headers + flow boxes | Activity diagram with `\|Lane\|` markers |
+| Lane headers + flow boxes + diamonds | Activity diagram with `\|Lane\|` markers |
 | Rectangles with class-like text | Class diagram with `class Name {}` |
 | Vertical timeline with messages | Sequence diagram with `participant` |
 | State boxes with transitions | State diagram with `[*]` and arrows |
 
-4. **Generate PlantUML** with proper syntax:
+5. **Generate PlantUML** with proper syntax:
 
 ```plantuml
 @startuml
@@ -381,8 +388,8 @@ When user wants PlantUML output from Excalidraw:
 
 ### Mapping Examples
 
-**Activity diagram (from swimlanes):**
-- Swimlane header text → `|Actor Name|`
+**Activity diagram:**
+- Lane header text → `|Actor Name|`
 - Process box text → `:Action text;`
 - Conditional branches → `if (condition?) then (yes) ... else (no) ... endif`
 - Arrow labels → transition annotations
@@ -398,7 +405,7 @@ When user wants PlantUML output from Excalidraw:
 
 1. **Always read the relevant spec first** - Don't rely on training data
 2. **Detect source/target format** from content and user intent
-3. **Use appropriate styling** - Swimlane for processes, generic for others
+3. **Use appropriate styling** - Activity Diagram Styling for processes, generic for others
 4. **Preserve semantics** - Arrow types and relationships matter
 5. **Validate bindings** - Both sides must reference each other
 6. **Output clean JSON** - No markdown fences, proper formatting
