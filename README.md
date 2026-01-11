@@ -33,7 +33,7 @@ In Claude Code, run:
 
 ```
 /plugin marketplace add kristofsajdak/claude-whiteboard
-/plugin install canvas@claude-whiteboard
+/plugin install whiteboard@claude-whiteboard
 ```
 
 Restart Claude Code.
@@ -50,7 +50,7 @@ In any project, tell Claude:
 "Connect to whiteboard at http://localhost:3000"
 ```
 
-Claude will use the canvas skill to interact with the whiteboard directly.
+Claude will use the whiteboard skills to interact with the canvas directly.
 
 ## How It Works
 
@@ -70,7 +70,7 @@ All changes sync in real-time to all participants.
 
 - **[packages/server](./packages/server)** - Canvas server with Excalidraw UI
 - **[packages/mcp](./packages/mcp)** - MCP server (legacy, slower alternative)
-- **[plugin](./plugin)** - Claude Code plugin with canvas skill
+- **[plugin](./plugin)** - Claude Code plugin with whiteboard skills (I/O, Excalidraw, PlantUML)
 
 ## License
 
