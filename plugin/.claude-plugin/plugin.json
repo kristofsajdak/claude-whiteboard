@@ -1,11 +1,11 @@
 {
   "name": "whiteboard",
   "description": "Whiteboard plugin for Claude Code - canvas operations and diagram generation",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "author": {
     "name": "Kristof Sajdak"
   },
   "repository": "https://github.com/kristofsajdak/claude-whiteboard",
   "license": "MIT",
-  "keywords": ["canvas", "whiteboard", "excalidraw", "collaboration", "drawing", "diagrams", "swimlane"]
+  "keywords": ["canvas", "whiteboard", "excalidraw", "collaboration", "drawing", "diagrams", "swimlane", "activity", "workflow"]
 }

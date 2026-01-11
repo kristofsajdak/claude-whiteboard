@@ -1,6 +1,6 @@
 ---
-name: whiteboard:flow
-description: Generate swimlane activity diagram as Excalidraw JSON
+name: whiteboard:activity
+description: Use when user asks to visualize, diagram, or draw a process flow, activity diagram, swimlane diagram, or workflow
 model: opus
 ---
 
