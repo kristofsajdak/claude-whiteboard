@@ -1,4 +1,5 @@
 ---
+name: whiteboard:flow
 description: Generate swimlane activity diagram as Excalidraw JSON
 model: opus
 ---
@@ -18,7 +19,7 @@ Output the raw JSON directly to chat - no markdown code fences, no explanation, 
 ## Before You Generate
 
 **BEFORE GENERATING ANY ELEMENTS: Read the Excalidraw spec:**
-- `../skills/whiteboard/EXCALIDRAW-SPEC.md` - Element structure, bindings, JSON format
+- [EXCALIDRAW-SPEC.md](EXCALIDRAW-SPEC.md) - Element structure, bindings, JSON format
 
 | If you think...       | Reality                                                    |
 |-----------------------|------------------------------------------------------------|
