@@ -196,6 +196,98 @@ Labels bound to arrows move with them:
 
 Use labels to describe what flows between steps (e.g., "HTTP request", "event", "callback").
 
+### Activity Diagram Shape Reference
+
+Standard shapes for activity diagram constructs:
+
+| Construct             | Excalidraw Shape    | Size   | Notes                                           |
+|-----------------------|---------------------|--------|-------------------------------------------------|
+| Decision (branching)  | Diamond             | 100x80 | Where flow splits based on condition            |
+| Merge (converging)    | Diamond or implicit | 100x80 | Where paths rejoin; can omit if arrows converge |
+| Fork (parallel start) | Thin rectangle      | 400x8  | Bar indicating parallel execution begins        |
+| Join (parallel end)   | Thin rectangle      | 400x8  | Bar indicating parallel paths synchronize       |
+| Action/Activity       | Rounded rectangle   | 200x70 | `roundness: {type: 3}`                          |
+| Start                 | Small ellipse       | 30x30  | Solid black fill                                |
+| End/Stop              | Small ellipse       | 30x30  | White fill, thick black stroke                  |
+
+### Decision Node
+
+Diamond shape for branching decisions. Use lane colors or yellow/orange for neutral.
+
+```json
+{
+  "type": "diamond",
+  "width": 100,
+  "height": 80,
+  "strokeColor": "#f08c00",
+  "backgroundColor": "#fff9db",
+  "roundness": null,
+  "boundElements": [
+    {"id": "decision-text-id", "type": "text"},
+    {"id": "incoming-arrow-id", "type": "arrow"},
+    {"id": "yes-arrow-id", "type": "arrow"},
+    {"id": "no-arrow-id", "type": "arrow"}
+  ]
+}
+```
+
+Use semantic arrow colors for branches: green (`#2f9e44`) for "Yes"/success path, red (`#e03131`) for "No"/failure path.
+
+### Fork/Join Bar
+
+Thin horizontal rectangles for parallel flow. Span relevant lanes.
+
+```json
+{
+  "type": "rectangle",
+  "width": 400,
+  "height": 8,
+  "strokeColor": "#495057",
+  "backgroundColor": "#495057",
+  "roundness": null
+}
+```
+
+### Start/End Nodes
+
+Small ellipses to mark flow boundaries.
+
+**Start node** (solid black):
+```json
+{
+  "type": "ellipse",
+  "width": 30,
+  "height": 30,
+  "strokeColor": "#1e1e1e",
+  "backgroundColor": "#1e1e1e"
+}
+```
+
+**End node** (ring effect - white fill, thick stroke):
+```json
+{
+  "type": "ellipse",
+  "width": 30,
+  "height": 30,
+  "strokeColor": "#1e1e1e",
+  "backgroundColor": "#ffffff",
+  "strokeWidth": 4
+}
+```
+
+### PlantUML Shape Mapping
+
+When converting from PlantUML, note these defaults differ:
+
+| PlantUML Construct        | PlantUML Renders  | Excalidraw Equivalent           |
+|---------------------------|-------------------|---------------------------------|
+| `if/then/else` (decision) | Hexagon           | Diamond                         |
+| `endif` (merge)           | Diamond           | Diamond or implicit             |
+| `fork/end fork`           | Bar               | Thin rectangle                  |
+| `:action;`                | Rounded rectangle | Rounded rectangle               |
+| `start`                   | Filled circle     | Small filled ellipse            |
+| `stop`                    | Circle with ring  | Small ellipse with thick stroke |
+
 ---
 
 ## Generic Styling (Non-Activity Diagrams)

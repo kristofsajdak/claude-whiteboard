@@ -209,3 +209,18 @@ When converting natural language to PlantUML:
 3. **Map flow steps** to PlantUML syntax
 4. **Add appropriate styling** (colors, notes) when specified
 5. **Use proper arrow types** for relationship semantics
+
+## Shape Rendering Reference
+
+PlantUML renders activity diagram constructs with these default shapes:
+
+| Construct | Default Shape | Skinparam Override |
+|-----------|--------------|-------------------|
+| `if/then/else` (decision) | Hexagon | `skinparam conditionStyle diamond` |
+| `endif` (merge) | Diamond | `skinparam ConditionEndStyle hline` |
+| `fork/end fork` | Horizontal bar | - |
+| `:action;` | Rounded rectangle | - |
+| `start` | Filled circle | - |
+| `stop` | Circle with ring | - |
+
+**Note:** PlantUML does NOT strictly follow UML standards. It uses hexagons for decisions (not diamonds) by default. When converting to Excalidraw, use diamonds for both decisions and merges for consistency.

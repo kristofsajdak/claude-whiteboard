@@ -128,21 +128,36 @@ Elements inside a frame have `frameId` set to the frame's ID.
 To connect an arrow to shapes:
 
 1. Create the shapes with `boundElements` listing the arrow:
+
 ```json
 {
   "id": "shape-1",
   "type": "rectangle",
-  "boundElements": [{"id": "arrow-1", "type": "arrow"}]
+  "boundElements": [
+    {
+      "id": "arrow-1",
+      "type": "arrow"
+    }
+  ]
 }
 ```
 
 2. Create the arrow with bindings:
+
 ```json
 {
   "id": "arrow-1",
   "type": "arrow",
-  "startBinding": {"elementId": "shape-1", "focus": 0, "gap": 1},
-  "endBinding": {"elementId": "shape-2", "focus": 0, "gap": 1}
+  "startBinding": {
+    "elementId": "shape-1",
+    "focus": 0,
+    "gap": 1
+  },
+  "endBinding": {
+    "elementId": "shape-2",
+    "focus": 0,
+    "gap": 1
+  }
 }
 ```
 
@@ -153,15 +168,22 @@ To connect an arrow to shapes:
 To put text inside a shape:
 
 1. Shape references the text:
+
 ```json
 {
   "id": "rect-1",
   "type": "rectangle",
-  "boundElements": [{"id": "text-1", "type": "text"}]
+  "boundElements": [
+    {
+      "id": "text-1",
+      "type": "text"
+    }
+  ]
 }
 ```
 
 2. Text references the container:
+
 ```json
 {
   "id": "text-1",
@@ -192,8 +214,10 @@ Elements can belong to multiple groups (nested groups).
   {
     "id": "box-1",
     "type": "rectangle",
-    "x": 100, "y": 100,
-    "width": 150, "height": 60,
+    "x": 100,
+    "y": 100,
+    "width": 150,
+    "height": 60,
     "strokeColor": "#1e1e1e",
     "backgroundColor": "#a5d8ff",
     "fillStyle": "solid",
@@ -207,18 +231,27 @@ Elements can belong to multiple groups (nested groups).
     "versionNonce": 67890,
     "isDeleted": false,
     "groupIds": [],
-    "boundElements": [{"id": "text-1", "type": "text"}],
+    "boundElements": [
+      {
+        "id": "text-1",
+        "type": "text"
+      }
+    ],
     "updated": 1704567890000,
     "link": null,
     "locked": false,
     "frameId": null,
-    "roundness": {"type": 3}
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "id": "text-1",
     "type": "text",
-    "x": 130, "y": 120,
-    "width": 90, "height": 25,
+    "x": 130,
+    "y": 120,
+    "width": 90,
+    "height": 25,
     "text": "User Service",
     "fontSize": 20,
     "fontFamily": 1,
@@ -257,11 +290,30 @@ Elements can belong to multiple groups (nested groups).
 {
   "id": "arrow-1",
   "type": "arrow",
-  "x": 250, "y": 130,
-  "width": 100, "height": 0,
-  "points": [[0, 0], [100, 0]],
-  "startBinding": {"elementId": "box-1", "focus": 0, "gap": 1},
-  "endBinding": {"elementId": "box-2", "focus": 0, "gap": 1},
+  "x": 250,
+  "y": 130,
+  "width": 100,
+  "height": 0,
+  "points": [
+    [
+      0,
+      0
+    ],
+    [
+      100,
+      0
+    ]
+  ],
+  "startBinding": {
+    "elementId": "box-1",
+    "focus": 0,
+    "gap": 1
+  },
+  "endBinding": {
+    "elementId": "box-2",
+    "focus": 0,
+    "gap": 1
+  },
   "startArrowhead": null,
   "endArrowhead": "arrow",
   "lastCommittedPoint": null,
@@ -283,7 +335,9 @@ Elements can belong to multiple groups (nested groups).
   "link": null,
   "locked": false,
   "frameId": null,
-  "roundness": {"type": 2}
+  "roundness": {
+    "type": 2
+  }
 }
 ```
 
