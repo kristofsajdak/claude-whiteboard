@@ -1,5 +1,5 @@
 ---
-name: whiteboard:plantuml
+name: plantuml
 description: Use when user wants to convert to or from PlantUML format
 model: opus
 ---

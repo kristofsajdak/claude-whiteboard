@@ -1,5 +1,5 @@
 ---
-name: whiteboard:excalidraw
+name: excalidraw
 description: Use when user wants to convert to or from Excalidraw format
 model: opus
 ---

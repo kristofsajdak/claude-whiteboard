@@ -1,5 +1,5 @@
 ---
-name: whiteboard:whiteboard
+name: whiteboard
 description: Use when user wants to connect, read, write, or manage savepoints on a whiteboard server
 model: haiku
 ---
