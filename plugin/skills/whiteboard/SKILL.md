@@ -1,5 +1,5 @@
 ---
-name: canvas
+name: whiteboard:canvas
 description: Use when user wants to interact with a whiteboard/canvas - requires reading Excalidraw spec for valid element generation
 model: haiku
 ---
@@ -8,11 +8,10 @@ model: haiku
 
 Interact with the canvas server directly via curl. No MCP server needed.
 
-**BEFORE GENERATING ANY ELEMENTS: You MUST read these specs in this skill directory:**
+**BEFORE GENERATING ANY ELEMENTS: You MUST read this spec in this skill directory:**
 - `EXCALIDRAW-SPEC.md` - Element structure, bindings, and JSON format
-- `PROCESS-FLOWS.md` - Swimlane diagrams for visualizing any process
 
-This is not optional documentation - these specs ARE the skill. Without them, you will generate invalid JSON that breaks the canvas.
+This is not optional documentation - this spec IS the skill. Without it, you will generate invalid JSON that breaks the canvas.
 
 | If you think...       | Reality                                                                 |
 |-----------------------|-------------------------------------------------------------------------|
