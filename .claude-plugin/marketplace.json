@@ -6,10 +6,10 @@
   },
   "plugins": [
     {
-      "name": "canvas",
+      "name": "whiteboard",
       "source": "./plugin",
-      "description": "Canvas skill for interacting with Claude Whiteboard",
-      "version": "0.2.0"
+      "description": "Whiteboard plugin for Claude Code - canvas operations and diagram generation",
+      "version": "0.8.0"
     }
   ]
 }
