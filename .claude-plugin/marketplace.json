@@ -9,7 +9,7 @@
       "name": "whiteboard",
       "source": "./plugin",
       "description": "Whiteboard plugin for Claude Code - canvas operations and diagram generation",
-      "version": "0.10.0"
+      "version": "0.11.0"
     }
   ]
 }
