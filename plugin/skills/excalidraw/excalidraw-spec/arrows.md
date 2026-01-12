@@ -210,18 +210,39 @@ Arrowhead options: `null`, `"arrow"`, `"bar"`, `"dot"`, `"triangle"`
 
 ## Arrow Labels
 
-Position standalone text near arrow midpoint:
+Bind labels to arrows so they move together when edited:
+
+**Arrow element:**
+- Add `boundElements: [{ "type": "text", "id": "{arrow-id}-text" }]`
+
+**Text element:**
+- Set `containerId: "{arrow-id}"`
+- Use ID pattern: `{arrow-id}-text`
+- Position at visually appropriate location (midpoint, near bends, near source for decision labels)
+
+**Example:**
 
 ```json
 {
-  "id": "arrow-label",
-  "type": "text",
-  "x": 305,
-  "y": 245,
-  "text": "label text",
-  "fontSize": 12,
-  "containerId": null
+  "id": "arrow-decision-yes",
+  "type": "arrow",
+  "boundElements": [
+    { "type": "text", "id": "arrow-decision-yes-text" }
+  ]
 }
 ```
 
-Position labels at the visual midpoint or near bends for clarity.
+```json
+{
+  "id": "arrow-decision-yes-text",
+  "type": "text",
+  "text": "Yes",
+  "fontSize": 12,
+  "textAlign": "center",
+  "verticalAlign": "middle",
+  "containerId": "arrow-decision-yes",
+  "originalText": "Yes"
+}
+```
+
+Labels use LLM judgment for positioning — no fixed rule.
