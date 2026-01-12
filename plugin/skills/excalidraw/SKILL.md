@@ -98,61 +98,78 @@ Arrows must start/end at shape edges, not centers:
 
 ---
 
+## Generation Workflow
 
-## Direction Detection
+Follow these steps in order when generating Excalidraw JSON.
 
-Determine conversion direction from user input:
+### Step 1: Detect Direction
 
-**→ Excalidraw JSON** (generating) if user:
-- Asks to "create", "generate", "draw", "visualize", "diagram"
-- Provides PlantUML code (`@startuml`/`@enduml`)
-- Provides a natural language description
+| User Intent | Direction |
+|-------------|-----------|
+| "create", "generate", "draw", "visualize" | → Excalidraw JSON |
+| Provides PlantUML or description | → Excalidraw JSON |
+| "describe", "explain", "convert to PlantUML" | Excalidraw JSON → |
+| Shares canvas for analysis | Excalidraw JSON → |
 
-**Excalidraw JSON →** (parsing) if user:
-- Provides Excalidraw JSON content
-- Asks to "describe", "explain", "summarize", "convert to PlantUML"
-- Shares canvas content for analysis
+### Step 2: Identify Source & Diagram Type
 
----
+| Source Contains... | Diagram Type | Use Styling |
+|--------------------|--------------|-------------|
+| `@startuml`/`@enduml` with `:action;` | Activity | Activity Diagram Styling |
+| "process", "workflow", "swimlane", "flow" | Activity | Activity Diagram Styling |
+| `class`/`interface` or "architecture" | Class/Architecture | Generic Styling |
+| `participant` or "sequence", "timeline" | Sequence | Generic Styling |
 
-# Generating Excalidraw JSON
+**For PlantUML:** Read `PLANTUML-SPEC.md` first.
 
-## Source Detection
+### Step 3: Plan Layout
 
-| Source Contains... | Source Type | Action |
-|--------------------|-------------|--------|
-| `@startuml`/`@enduml` | PlantUML | Parse PlantUML structure, generate Excalidraw |
-| Natural language description | Text | Analyze description, generate Excalidraw |
-| Excalidraw JSON | Already Excalidraw | No conversion needed |
+```
+Typical vertical flow:
+Row 1: y=50  (headers/entry points)
+Row 2: y=140 (first action row)
+Row 3: y=260 (second action row)
+...
+Row spacing: ~120px
+Column spacing: ~220px
+Element size: 200x70 typical
+```
 
-## From PlantUML
+### Step 4: Generate Shapes
 
-When source is PlantUML:
+For each component:
+1. Create shape with unique `id`
+2. Add `boundElements` referencing text element
+3. Create text element with `containerId`
+4. Choose color based on lane/type
 
-1. **Read [PLANTUML-SPEC.md](PLANTUML-SPEC.md)** for syntax reference
-2. **Identify diagram type** from content:
-   - `start`/`stop` with `:action;` → Activity diagram → Use Activity Diagram Styling
-   - `class`/`interface` → Class diagram → Use generic styling
-   - `participant` → Sequence diagram → Use generic styling
-   - `[*]` transitions → State diagram → Use generic styling
-3. **Extract structure**: actors, steps, relationships, conditions
-4. **Generate Excalidraw** using appropriate styling below
+**Styling reference:** See sections below.
 
-## From Natural Language
+### Step 5: Generate Arrows
 
-When source is a description:
+**For each arrow, output a calculation block first:**
 
-1. **Detect diagram type** from keywords:
+```
+ARROW: {source-id} → {target-id}
+Source: x={x}, y={y}, w={w}, h={h}
+Target: x={x}, y={y}, w={w}, h={h}
+Source edge ({edge}): = ({x}, {y})
+Target edge ({edge}): = ({x}, {y})
+Offset: dx={dx}, dy={dy}
+Points: [[0,0], ...]
+```
 
-| Description Contains... | Diagram Type | Use Styling |
-|------------------------|--------------|-------------|
-| "process", "workflow", "activity", "swimlane", "steps", "flow" | Activity/Process | Activity Diagram Styling |
-| "class", "object", "inheritance", "UML", "architecture" | Class Diagram | Generic Styling |
-| "sequence", "interaction", "message", "timeline" | Sequence Diagram | Generic Styling |
-| Generic without clear type | Generic | Generic Styling |
+Then generate the arrow JSON.
 
-2. **Extract structure** from the description
-3. **Generate Excalidraw** using appropriate styling
+**No visible calculations = guaranteed broken arrows.**
+
+**Arrow patterns:** See `excalidraw-spec/arrows.md`
+
+### Step 6: Validate & Output
+
+Run validation checklist before outputting. Output raw JSON directly (no markdown fences).
+
+**Validation:** See `excalidraw-spec/validation.md`
 
 ---
 
