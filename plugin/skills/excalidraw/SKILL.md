@@ -122,20 +122,7 @@ Follow these steps in order when generating Excalidraw JSON.
 
 **For PlantUML:** Read `PLANTUML-SPEC.md` first.
 
-### Step 3: Plan Layout
-
-```
-Typical vertical flow:
-Row 1: y=50  (headers/entry points)
-Row 2: y=140 (first action row)
-Row 3: y=260 (second action row)
-...
-Row spacing: ~120px
-Column spacing: ~220px
-Element size: 200x70 typical
-```
-
-### Step 4: Generate Shapes
+### Step 3: Generate Shapes
 
 For each component:
 1. Create shape with unique `id`
@@ -145,7 +132,7 @@ For each component:
 
 **Styling reference:** See sections below.
 
-### Step 5: Generate Arrows
+### Step 4: Generate Arrows
 
 **For each arrow, output a calculation block first:**
 
@@ -165,7 +152,7 @@ Then generate the arrow JSON.
 
 **Arrow patterns:** See `excalidraw-spec/arrows.md`
 
-### Step 6: Validate & Output
+### Step 5: Validate & Output
 
 Run validation checklist before outputting. Output raw JSON directly (no markdown fences).
 
