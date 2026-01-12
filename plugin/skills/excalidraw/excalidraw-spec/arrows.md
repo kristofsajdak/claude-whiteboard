@@ -118,12 +118,29 @@ If coordinates say "starts at Shape A's bottom" but binding says "left edge", th
 
 ### fixedPoint Values
 
+fixedPoint is a normalized [x, y] position on the shape (0 to 1):
+
+```
+fixedPoint[0] = (arrow.x - shape.x) / shape.width   // 0=left, 0.5=center, 1=right
+fixedPoint[1] = (arrow.y - shape.y) / shape.height  // 0=top, 0.5=middle, 1=bottom
+```
+
+**Edge centers (single arrows):**
+
 | Edge | fixedPoint |
 |------|------------|
 | Top | `[0.5, 0]` |
 | Bottom | `[0.5, 1]` |
 | Left | `[0, 0.5]` |
 | Right | `[1, 0.5]` |
+
+**Staggered arrows:** Use actual position, not center:
+
+| Position | fixedPoint |
+|----------|------------|
+| Bottom at 20% | `[0.2, 1]` |
+| Bottom at 50% | `[0.5, 1]` |
+| Bottom at 80% | `[0.8, 1]` |
 
 ### Binding Structure
 
