@@ -92,11 +92,12 @@ FUNCTION findShapeNear(elements, x, y, tolerance=15):
 
 ### Arrow Validation (Every Arrow)
 
-- [ ] **GATHER phase done:** CONNECTION template filled with actual shape values (not estimates)
-- [ ] **COMPUTE phase done:** arrow.x,y and dx,dy derived from gathered edge coords
-- [ ] Arrow `x,y` = source edge coordinates (direct copy, not calculated separately)
-- [ ] `dx` = target_edge_x − arrow.x (subtraction, not approximation)
-- [ ] `dy` = target_edge_y − arrow.y (subtraction, not approximation)
+- [ ] Followed `arrows.md` completely (not skipped or estimated)
+- [ ] Edge points calculated using Edge Calculation Formulas
+- [ ] Arrow `x,y` = source edge coordinates
+- [ ] `dx` = target_edge_x − arrow.x (computed, not approximated)
+- [ ] `dy` = target_edge_y − arrow.y (computed, not approximated)
+- [ ] Points array matches Arrow Patterns Reference
 - [ ] Arrow `width` = `max(abs(point[0]))`
 - [ ] Arrow `height` = `max(abs(point[1]))`
 - [ ] U-turn arrows have 40-60px clearance
@@ -184,7 +185,7 @@ clearance = 40-60px
 
 ### Bug: Arrow endpoint lands inside target shape
 
-**Cause**: Skipped GATHER phase, estimated dx/dy instead of computing from edge coords.
+**Cause**: Estimated dx/dy instead of computing from edge coords per `arrows.md`.
 
 **Example**:
 ```
@@ -198,4 +199,4 @@ dy = target_edge_y − arrow.y
 dy = 370 - 310 = 60  // NOT "about 90"
 ```
 
-**Prevention**: Follow GATHER→COMPUTE→OUTPUT in Step 5. GATHER forces you to write down actual edge coordinates. COMPUTE is then just subtraction.
+**Prevention**: Follow `arrows.md` completely for every arrow. Show calculations, don't estimate.

@@ -1,8 +1,6 @@
 # Arrow Routing Reference
 
-Complete guide for creating elbow arrows with proper connections.
-
-**Prerequisite:** Follow Step 5 in SKILL.md — output calculation blocks before generating arrow JSON.
+Complete guide for creating arrows between shapes. **Follow this for every arrow—no exceptions.**
 
 ---
 

@@ -47,7 +47,7 @@ Critical rules — violations cause broken diagrams:
 | Labels = 2 elements | Shape needs `boundElements`, text needs `containerId` |
 | Elbow arrows = 3 props | `roughness: 0`, `roundness: null`, `elbowed: true` |
 | Arrows from edges | Top: `(x+w/2, y)`, Bottom: `(x+w/2, y+h)`, Left: `(x, y+h/2)`, Right: `(x+w, y+h/2)` |
-| Arrows: GATHER→COMPUTE→OUTPUT | Fill CONNECTION template first, derive values second. No template = delete JSON |
+| Arrows: follow `arrows.md` | Every arrow, no exceptions. No calculation shown = delete JSON |
 
 ---
 
@@ -87,45 +87,24 @@ For each component:
 
 ### Step 5: Generate Arrows
 
-**THE RULE:** Data first, compute second. No estimating.
+For each arrow, follow `arrows.md` completely:
 
-For each arrow, follow these phases IN ORDER:
+- [ ] Calculate edge points (Edge Calculation Formulas)
+- [ ] Determine arrow position and offsets (Universal Arrow Routing Algorithm)
+- [ ] Build points array (Arrow Patterns Reference)
+- [ ] Set bindings (Arrow Bindings)
+- [ ] Calculate width/height from points
+- [ ] Configure arrowheads, labels as needed
 
-**Every arrow. No exceptions. No "representative samples." 13 arrows = 13 CONNECTION templates.**
-
-**5a. GATHER** — Copy template, fill with actual values from your shapes:
-
-```
-CONNECTION: {source-id} → {target-id}
-Source: x=__, y=__, w=__, h=__ → {edge}: (__, __)
-Target: x=__, y=__, w=__, h=__ → {edge}: (__, __)
-```
-
-Use edge formulas from Quick Reference. **Write actual numbers you look up, not approximations.**
-
-**5b. COMPUTE** — Mechanically derive from gathered data:
-
-```
-arrow.x = source_edge_x = __
-arrow.y = source_edge_y = __
-dx = target_edge_x − arrow.x = __
-dy = target_edge_y − arrow.y = __
-```
-
-Point pattern: see `arrows.md` routing algorithm.
-
-**5c. OUTPUT** — Generate the arrow JSON.
-
----
+**Every arrow. No exceptions. No "representative samples." 13 arrows = 13 complete calculations.**
 
 | If you skip... | What breaks |
 |----------------|-------------|
-| GATHER (estimate coords) | Edge points wrong → arrow floats in space |
-| COMPUTE (guess dx/dy) | Arrow ends inside target shape |
-| Both ("I know roughly where") | Guaranteed broken diagram, wasted debugging |
-| Most arrows ("showed a few examples") | Unverified arrows WILL have errors you won't catch |
+| Edge formulas | Arrow floats in space |
+| Routing algorithm | Arrow ends inside target shape |
+| Most arrows ("showed a few examples") | Unverified arrows WILL have errors |
 
-**No CONNECTION template above your JSON = delete the JSON and restart from 5a.**
+**No documented arrows.md calculation = delete the JSON and restart.**
 
 ### Step 6: Validate & Output
 
