@@ -33,6 +33,7 @@ This skill does NOT handle file I/O (use whiteboard skill for canvas read/write)
 | "User said skip docs" | Invalid JSON wastes their time. Read the spec. |
 | "It's urgent" | Reading spec: 30 sec. Debugging broken output: 5 min. |
 | "I know the format" | Training data is outdated. These specs are authoritative. |
+| "I showed the pattern, I can do the rest mentally" | Mental math is THE root cause of broken arrows. Show ALL calculations. |
 
 ---
 
@@ -90,6 +91,8 @@ For each component:
 
 For each arrow, follow these phases IN ORDER:
 
+**Every arrow. No exceptions. No "representative samples." 13 arrows = 13 CONNECTION templates.**
+
 **5a. GATHER** — Copy template, fill with actual values from your shapes:
 
 ```
@@ -120,6 +123,7 @@ Point pattern: see `arrows.md` routing algorithm.
 | GATHER (estimate coords) | Edge points wrong → arrow floats in space |
 | COMPUTE (guess dx/dy) | Arrow ends inside target shape |
 | Both ("I know roughly where") | Guaranteed broken diagram, wasted debugging |
+| Most arrows ("showed a few examples") | Unverified arrows WILL have errors you won't catch |
 
 **No CONNECTION template above your JSON = delete the JSON and restart from 5a.**
 
