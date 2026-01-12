@@ -4,6 +4,14 @@ Principles-based guide for creating arrows between shapes.
 
 ---
 
+## Arrow Coloring
+
+**All arrows use neutral gray (`#495057`)** — never encode semantics with color.
+
+Labels convey meaning ("Yes", "No", "Incomplete"), not arrow color. This keeps the visual language simple: color = actor identity, text = semantics.
+
+---
+
 ## Routing Principles
 
 Route arrows based on visual judgment with full diagram awareness.
@@ -20,15 +28,35 @@ Route arrows based on visual judgment with full diagram awareness.
 
 **The "step back and look" test:** After mentally placing an arrow, ask: "If I drew this on a whiteboard, would it look clean?" If not, adjust.
 
-### Loop Arrows (Feedback Paths)
+### Loop Arrows (Feedback Paths) — MANDATORY SEQUENCE
 
-Loop arrows (e.g., "Incomplete" returning to a previous step) require special care:
+Loop arrows (e.g., "Incomplete" returning to a previous step) require explicit obstacle analysis BEFORE generating points.
 
-1. **Never draw straight through boxes** - A loop must route AROUND any shapes in its path
-2. **Use elbows liberally** - Go around the outside of the diagram
-3. **Enter on a different edge** - If another arrow exits from the left, enter from the right
+**You CANNOT generate loop arrow points until you complete:**
 
-Use elbowed arrows with enough waypoints to cleanly route around all obstacles.
+1. **List obstacles** — Write out every shape between source and target with coordinates:
+   ```
+   Shapes in path: box-provide-info (x=490-690, y=690-760)
+   ```
+
+2. **Choose route side** — Decide which side goes AROUND all obstacles:
+   ```
+   Route: right side (x > 690)
+   ```
+
+3. **Set clearance** — Waypoints must be 30px+ outside obstacle bounds:
+   ```
+   Clear path at x=720 (690 + 30)
+   ```
+
+4. **THEN generate points** — Only after steps 1-3.
+
+**Additional rules:**
+- Never draw straight through boxes — route AROUND
+- Use elbows liberally — go around the outside of the diagram
+- Enter on a different edge — if another arrow exits from the left, enter from the right
+
+Skipping the obstacle analysis = arrow will cross through boxes = broken diagram.
 
 ---
 

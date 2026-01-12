@@ -95,6 +95,31 @@ Read `arrows.md` before generating any arrows. Then route all arrows considering
 
 **Not per-arrow isolation** — consider how all arrows work together.
 
+#### Loop Arrows (MANDATORY SEQUENCE)
+
+Loop arrows (feedback paths returning to earlier steps) require explicit obstacle analysis. You CANNOT generate a loop arrow until you complete these steps:
+
+**1. List obstacles** — Write out every shape between source and target:
+```
+Shapes in path: box-provide-info (x=490-690, y=690-760)
+```
+
+**2. Choose route side** — Pick which side routes AROUND all obstacles:
+```
+Route: right side (x > 690)
+```
+
+**3. Set clearance** — Waypoints must be at least 30px outside obstacle bounds:
+```
+Clear path at x=720 (690 + 30)
+```
+
+**4. THEN generate points** — Only after steps 1-3 are complete.
+
+Skipping steps 1-3 = arrow will cross through boxes = broken diagram.
+
+This is not a post-hoc checklist. It is a prerequisite that blocks point generation.
+
 ### Step 6: Validate & Output
 
 Run validation from `excalidraw-spec/validation.md` before outputting.
@@ -135,6 +160,22 @@ This approach:
 - Simplifies arrows to simple diagonals
 - Eliminates horizontal routing complexity
 - Prevents arrow-box crossings
+
+**Coloring Principles:**
+
+Color encodes ONE thing: **actor/swimlane identity**. Nothing else.
+
+| Visual Element | Color Rule |
+|----------------|------------|
+| Process boxes | Use swimlane color — ALL boxes in a lane share the same color regardless of action type (Exit, Error, Complete, etc.) |
+| Arrows | Neutral gray (`#495057`) — never use color to encode Yes/No/success/failure |
+| Decision boxes | Use swimlane color (dashed stroke distinguishes them, not color) |
+| Labels on arrows | Text conveys semantics ("Yes", "No", "Incomplete") — no color needed |
+
+**Why?** Color-by-actor keeps visual language simple:
+- One meaning per dimension (color = who, text = what)
+- "Exit" by Candidate is still a Candidate action → same color
+- Easier to scan and understand at a glance
 
 **Color Palette:**
 

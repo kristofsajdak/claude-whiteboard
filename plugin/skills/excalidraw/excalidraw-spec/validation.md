@@ -15,7 +15,7 @@ Before finalizing an activity diagram, verify:
 - [ ] **Row-based layout**: Each process step is on its own row (cross-lane arrows go diagonally DOWN, not horizontally)
 - [ ] **No arrow-box crossings**: Every arrow path is clear of shapes (loops route AROUND boxes)
 - [ ] **No shared edge positions**: Different arrows to/from same shape use different edges or positions
-- [ ] **Loop arrows use elbows**: Feedback paths use elbowed arrows to route around obstacles
+- [ ] **Loop arrows followed MANDATORY SEQUENCE**: Did you list obstacles, choose route side, and set clearance BEFORE generating points? (See `arrows.md` and `SKILL.md`)
 
 ---
 
