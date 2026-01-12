@@ -97,10 +97,10 @@ FUNCTION findShapeNear(elements, x, y, tolerance=15):
 - [ ] Arrow `x,y` = source edge coordinates
 - [ ] `dx` = target_edge_x − arrow.x (computed, not approximated)
 - [ ] `dy` = target_edge_y − arrow.y (computed, not approximated)
-- [ ] Points array matches Arrow Patterns Reference
+- [ ] Points array matches Routing Logic patterns
 - [ ] Arrow `width` = `max(abs(point[0]))`
 - [ ] Arrow `height` = `max(abs(point[1]))`
-- [ ] U-turn arrows have 40-60px clearance
+- [ ] U-turn arrows have 50px clearance
 
 ### After Generation
 
@@ -159,7 +159,7 @@ For 5 arrows from bottom edge:
 **Fix**: Use 4-point path:
 ```
 Points = [[0, 0], [clearance, 0], [clearance, -vert], [final_x, -vert]]
-clearance = 40-60px
+clearance = 50px
 ```
 
 ### Bug: Labels don't appear inside shapes
