@@ -16,7 +16,6 @@ Before finalizing an activity diagram, verify:
 - [ ] **No arrow-box crossings**: Every arrow path is clear of shapes (loops route AROUND boxes)
 - [ ] **No shared edge positions**: Different arrows to/from same shape use different edges or positions
 - [ ] **Loop arrows use elbows**: Feedback paths use elbowed arrows to route around obstacles
-- [ ] **Coordinates derived from fixedPoint**: For each arrow, verify coordinates match the binding (see arrows.md Step-by-Step)
 
 ---
 

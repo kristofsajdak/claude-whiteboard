@@ -103,52 +103,22 @@ Arrows have two positioning systems that **must be consistent**:
 
 If coordinates and bindings don't match, the arrow will "jump" when edited in Excalidraw.
 
-**CRITICAL: Derive coordinates FROM fixedPoint, not the reverse.**
+**Practical guidance:**
 
-### Step-by-Step: Creating a Bound Arrow
+1. `arrow.x` and `arrow.y` should be at the source shape's edge where the arrow visually departs
+2. The final point in `points`, added to arrow.x/y, should land at the target shape's edge
+3. `fixedPoint` values must reflect the actual connection position
 
-1. **Decide connection points** - Choose which edge/position on each shape:
-   - Source: e.g., bottom center = `[0.5, 1]`
-   - Target: e.g., top center = `[0.5, 0]`
+### fixedPoint Values
 
-2. **Calculate arrow start coordinates** from source shape + fixedPoint:
-   ```
-   arrow.x = source.x + (startFixedPoint[0] × source.width)
-   arrow.y = source.y + (startFixedPoint[1] × source.height)
-   ```
-
-3. **Calculate arrow end coordinates** from target shape + fixedPoint:
-   ```
-   end_x = target.x + (endFixedPoint[0] × target.width)
-   end_y = target.y + (endFixedPoint[1] × target.height)
-   ```
-
-4. **Set the last point** in the points array:
-   ```
-   points[last] = [end_x - arrow.x, end_y - arrow.y]
-   ```
-
-### Example Calculation
-
-Source box: `{x: 100, y: 200, width: 200, height: 70}`
-Target box: `{x: 400, y: 350, width: 200, height: 70}`
-
-Want: bottom-center of source → top-center of target
+fixedPoint is a normalized [x, y] position on the shape (0 to 1):
 
 ```
-startFixedPoint = [0.5, 1]  // bottom center
-endFixedPoint = [0.5, 0]    // top center
-
-arrow.x = 100 + (0.5 × 200) = 200
-arrow.y = 200 + (1 × 70) = 270
-
-end_x = 400 + (0.5 × 200) = 500
-end_y = 350 + (0 × 70) = 350
-
-points = [[0, 0], [500 - 200, 350 - 270]] = [[0, 0], [300, 80]]
+fixedPoint[0] = (arrow.x - shape.x) / shape.width   // 0=left, 0.5=center, 1=right
+fixedPoint[1] = (arrow.y - shape.y) / shape.height  // 0=top, 0.5=middle, 1=bottom
 ```
 
-### fixedPoint Reference
+**Common edge positions:**
 
 | Edge | fixedPoint |
 |------|------------|
@@ -157,7 +127,7 @@ points = [[0, 0], [500 - 200, 350 - 270]] = [[0, 0], [300, 80]]
 | Left center | `[0, 0.5]` |
 | Right center | `[1, 0.5]` |
 
-For non-center positions, calculate the actual fraction (e.g., `[0.3, 1]` = bottom edge at 30% from left).
+For arrows spread across an edge, use the actual position (e.g., `[0.3, 1]` for bottom edge at 30%).
 
 ### Binding Structure
 
