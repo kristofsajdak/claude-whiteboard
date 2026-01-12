@@ -201,7 +201,7 @@ Boxes use the same lane color but with lighter fill:
 - Row spacing: ~120px vertical
 - Style: same strokeColor as lane header, lighter backgroundColor
 
-**Critical: Boxes must declare ALL bound elements:** 
+**Critical: Boxes must declare ALL bound elements:**
 
 ### Activity Diagram Shape Reference
 
@@ -319,16 +319,14 @@ Before writing file:
 
 ---
 
----
-
 ## PlantUML ↔ Excalidraw Shape Mapping (Activity Diagrams)
 
 When converting activity diagrams between PlantUML and Excalidraw, use this mapping. Note that PlantUML renders shapes differently than standard UML:
 
 | PlantUML Construct        | PlantUML Renders  | Excalidraw Equivalent           |
 |---------------------------|-------------------|---------------------------------|
-| `if/then/else` (decision) | Hexagon           | Diamond                         |
-| `endif` (merge)           | Diamond           | Diamond or implicit             |
+| `if/then/else` (decision) | Hexagon           | Rectangle (dashed stroke)       |
+| `endif` (merge)           | Diamond           | Rectangle (dashed stroke) or implicit             |
 | `fork/end fork`           | Bar               | Thin rectangle                  |
 | `:action;`                | Rounded rectangle | Rounded rectangle               |
 | `start`                   | Filled circle     | Small filled ellipse            |
