@@ -24,7 +24,7 @@ This skill does NOT handle file I/O (use whiteboard skill for canvas read/write)
 | Spec | When to Read |
 |------|--------------|
 | `excalidraw-spec/json-format.md` | Always — element types, properties, text bindings |
-| `excalidraw-spec/arrows.md` | Always — routing, patterns, bindings |
+| `excalidraw-spec/arrows.md` | Always — routing principles, bindings |
 | `excalidraw-spec/validation.md` | Always — checklists, bug fixes |
 | `PLANTUML-SPEC.md` | When source/target is PlantUML |
 
@@ -33,7 +33,6 @@ This skill does NOT handle file I/O (use whiteboard skill for canvas read/write)
 | "User said skip docs" | Invalid JSON wastes their time. Read the spec. |
 | "It's urgent" | Reading spec: 30 sec. Debugging broken output: 5 min. |
 | "I know the format" | Training data is outdated. These specs are authoritative. |
-| "I showed the pattern, I can do the rest mentally" | Mental math is THE root cause of broken arrows. Show ALL calculations. |
 
 ---
 
@@ -45,9 +44,9 @@ Critical rules — violations cause broken diagrams:
 |------|---------|
 | No diamonds | Diamond arrow connections broken. Use `rectangle` with `strokeStyle: "dashed"` |
 | Labels = 2 elements | Shape needs `boundElements`, text needs `containerId` |
-| Elbow arrows = 3 props | `roughness: 0`, `roundness: null`, `elbowed: true` |
-| Arrows from edges | Top: `(x+w/2, y)`, Bottom: `(x+w/2, y+h)`, Left: `(x, y+h/2)`, Right: `(x+w, y+h/2)` |
-| Arrows: follow `arrows.md` | Every arrow, no exceptions. No calculation shown = delete JSON |
+| Multi-point arrows = 3 props | `roughness: 0`, `roundness: null`, `elbowed: true` (only when >2 points) |
+| Bindings must match coords | Arrow x/y and endpoint must land where bindings claim |
+| Arrows: follow `arrows.md` | Read principles, consider full diagram context |
 
 ---
 
@@ -87,28 +86,21 @@ For each component:
 
 ### Step 5: Generate Arrows
 
-For each arrow, follow `arrows.md` completely. Every section, every step, every arrow.
+Read `arrows.md` before generating any arrows. Then route all arrows considering the full diagram context.
 
-**No exceptions. No "representative samples." 13 arrows = 13 complete calculations.**
+**Key principles:**
+- Prefer straight diagonal lines (simpler, easier to edit)
+- Use elbows only to route around shapes or other arrows
+- Ensure bindings match coordinates for editability
+- Spread arrows from same edge visually
 
-| If you skip... | What breaks |
-|----------------|-------------|
-| Any section of arrows.md | Arrows will be broken |
-| Calculations for some arrows | Those arrows WILL be broken |
-
-**No documented calculation = delete the JSON and restart.**
+**Not per-arrow isolation** — consider how all arrows work together.
 
 ### Step 6: Validate & Output
 
-**Before outputting JSON, verify 2-3 arrows:**
-1. Pick arrows that cross lanes or use L-shapes (highest error risk)
-2. For each: trace `arrow.x + final_point[0]` and `arrow.y + final_point[1]`
-3. Result MUST equal target edge coordinates (within 5px)
-4. If mismatch: fix the arrow before proceeding
+Run validation from `excalidraw-spec/validation.md` before outputting.
 
 Output raw JSON directly (no markdown fences).
-
-Run validation algorithm before outputting. See `excalidraw-spec/validation.md`
 
 ---
 
@@ -174,10 +166,9 @@ For class diagrams, architecture, sequence:
 | Issue | Fix |
 |-------|-----|
 | Labels don't appear | Use TWO elements (shape + text), not `label` property |
-| Arrows curved | Add `elbowed: true`, `roundness: null`, `roughness: 0` |
-| Arrows floating | Calculate x,y from shape edge, not center |
-| Arrows overlapping | Stagger start positions across edge |
-| Arrow ends inside shape | dx/dy estimated, not calculated — always compute: `target_edge - arrow_start` |
+| Multi-point arrows curved | Add `elbowed: true`, `roundness: null`, `roughness: 0` |
+| Arrow "jumps" when edited | Coordinates don't match bindings; ensure x/y and endpoint match fixedPoint |
+| Arrows overlapping | Spread start positions visually across the edge |
 
 **Detailed fixes:** See `excalidraw-spec/validation.md`
 

@@ -1,105 +1,83 @@
 # Arrow Routing Reference
 
-Complete guide for creating arrows between shapes. **Follow this for every arrow—no exceptions.**
+Principles-based guide for creating arrows between shapes.
 
 ---
 
-## Edge Calculation Formulas
+## Routing Principles
 
-| Shape Type | Edge | Formula |
-|------------|------|---------|
-| Rectangle | Top | `(x + width/2, y)` |
-| Rectangle | Bottom | `(x + width/2, y + height)` |
-| Rectangle | Left | `(x, y + height/2)` |
-| Rectangle | Right | `(x + width, y + height/2)` |
-| Ellipse | Top | `(x + width/2, y)` |
-| Ellipse | Bottom | `(x + width/2, y + height)` |
+Route arrows based on visual judgment with full diagram awareness.
 
----
+| Principle | Guidance |
+|-----------|----------|
+| **Prefer straight lines** | Diagonal lines are fine - simpler and easier to edit |
+| **Elbows only when needed** | Use elbows to route around shapes or other arrows |
+| **Avoid crossing arrows** | Check existing arrows before routing; go around if possible |
+| **Spread from same edge** | Multiple arrows from one edge should be visually distributed |
+| **Breathing room** | Don't crowd edges; leave visual comfort space |
+| **Consider full diagram** | Route all arrows with awareness of each other, not in isolation |
 
-## Staggering Multiple Arrows
-
-When multiple arrows leave from the same edge, spread them evenly to avoid overlap:
-
-```
-FUNCTION getStaggeredPositions(shape, edge, numArrows):
-  positions = []
-  FOR i FROM 0 TO numArrows-1:
-    percentage = 0.2 + (0.6 * i / (numArrows - 1))
-
-    IF edge == "bottom" OR edge == "top":
-      x = shape.x + shape.width * percentage
-      y = (edge == "bottom") ? shape.y + shape.height : shape.y
-    ELSE:
-      x = (edge == "right") ? shape.x + shape.width : shape.x
-      y = shape.y + shape.height * percentage
-
-    positions.append({x, y})
-  RETURN positions
-
-// Examples:
-// 2 arrows: 20%, 80%
-// 3 arrows: 20%, 50%, 80%
-// 5 arrows: 20%, 35%, 50%, 65%, 80%
-```
+**The "step back and look" test:** After mentally placing an arrow, ask: "If I drew this on a whiteboard, would it look clean?" If not, adjust.
 
 ---
 
-## Universal Arrow Routing Algorithm
+## Arrow Structure
 
-```
-FUNCTION createArrow(source, target, sourceEdge, targetEdge):
-  // Step 1: Get edge points
-  sourcePoint = getEdgePoint(source, sourceEdge)
-  targetPoint = getEdgePoint(target, targetEdge)
+**Straight arrows (most cases):**
 
-  // Step 2: Calculate offsets
-  dx = targetPoint.x - sourcePoint.x
-  dy = targetPoint.y - sourcePoint.y
-
-  // Step 3: Apply routeArrow (REQUIRED: follow Routing Logic section exactly)
-  points = routeArrow(sourceEdge, targetEdge, dx, dy)
-
-  // Step 4: Calculate bounding box
-  width = max(abs(p[0]) for p in points)
-  height = max(abs(p[1]) for p in points)
-
-  RETURN {x: sourcePoint.x, y: sourcePoint.y, points, width, height}
-```
-
-### Routing Logic (routeArrow Implementation)
-
-**This section defines `routeArrow()`. Follow it exactly—do not estimate or skip.**
-
-| dx | dy | Meaning |
-|----|-----|---------|
-| positive | — | Target is RIGHT of source |
-| negative | — | Target is LEFT of source |
-| — | positive | Target is BELOW source |
-| — | negative | Target is ABOVE source |
-
-**Straight line** — when source and target edges are opposite and aligned:
-```
-IF edges are opposite AND offset in perpendicular direction < 10:
-  points = [[0, 0], [dx, dy]]
+```json
+{
+  "type": "arrow",
+  "x": 350,
+  "y": 200,
+  "points": [[0, 0], [150, 120]],
+  "startBinding": {
+    "elementId": "source-shape",
+    "focus": 0,
+    "gap": 1,
+    "fixedPoint": [0.5, 1]
+  },
+  "endBinding": {
+    "elementId": "target-shape",
+    "focus": 0,
+    "gap": 1,
+    "fixedPoint": [0.3, 0]
+  },
+  "startArrowhead": null,
+  "endArrowhead": "arrow"
+}
 ```
 
-**L-shape** — when edges are opposite but not aligned:
-```
-points = [[0, 0], [dx, 0], [dx, dy]]   // horizontal first
-  — OR —
-points = [[0, 0], [0, dy], [dx, dy]]   // vertical first
+**Elbowed arrows (routing around obstacles):**
+
+When you need to route around shapes or other arrows, add intermediate points:
+
+```json
+{
+  "type": "arrow",
+  "x": 350,
+  "y": 200,
+  "points": [[0, 0], [100, 0], [100, 150], [200, 150]],
+  "roughness": 0,
+  "roundness": null,
+  "elbowed": true,
+  "startBinding": { ... },
+  "endBinding": { ... },
+  "endArrowhead": "arrow"
+}
 ```
 
-Choose direction based on diagram aesthetics. General heuristic: go perpendicular to source edge first.
+Use as many points as needed to cleanly route around obstacles.
 
-**U-turn** — when source and target use the same edge (callbacks, returns):
-```
-clearance = 50  // pixels to extend before turning back
-points = [[0, 0], [clearance, 0], [clearance, dy], [dx, dy]]  // right edge
-points = [[0, 0], [0, clearance], [dx, clearance], [dx, dy]]  // bottom edge
-// Negate clearance for left/top edges
-```
+**Required properties for elbowed arrows:**
+
+| Property | Value | Purpose |
+|----------|-------|---------|
+| `roughness` | `0` | Clean lines |
+| `roundness` | `null` | Sharp corners |
+| `elbowed` | `true` | Enables 90-degree routing |
+
+These three properties are only required when `points` has more than 2 entries.
 
 ---
 
@@ -109,12 +87,16 @@ points = [[0, 0], [0, clearance], [dx, clearance], [dx, dy]]  // bottom edge
 
 Arrows have two positioning systems that **must be consistent**:
 
-- **Coordinates** (`x`, `y`, `points`) — where the arrow is drawn
-- **Bindings** (`startBinding`, `endBinding`) — which shape/edge it's connected to
+- **Coordinates** (`x`, `y`, `points`) - where the arrow is drawn
+- **Bindings** (`startBinding`, `endBinding`) - which shape/edge it connects to
 
-If coordinates say "starts at Shape A's bottom" but binding says "left edge", the arrow will jump when edited in Excalidraw.
+If coordinates and bindings don't match, the arrow will "jump" when edited in Excalidraw.
 
-**Rule:** After choosing source/target edges in routing, use the fixedPoint table to set matching bindings.
+**Practical guidance:**
+
+1. `arrow.x` and `arrow.y` should be at the source shape's edge where the arrow visually departs
+2. The final point in `points`, added to arrow.x/y, should land at the target shape's edge
+3. `fixedPoint` values must reflect the actual connection position
 
 ### fixedPoint Values
 
@@ -125,51 +107,33 @@ fixedPoint[0] = (arrow.x - shape.x) / shape.width   // 0=left, 0.5=center, 1=rig
 fixedPoint[1] = (arrow.y - shape.y) / shape.height  // 0=top, 0.5=middle, 1=bottom
 ```
 
-**Edge centers (single arrows):**
+**Common edge positions:**
 
 | Edge | fixedPoint |
 |------|------------|
-| Top | `[0.5, 0]` |
-| Bottom | `[0.5, 1]` |
-| Left | `[0, 0.5]` |
-| Right | `[1, 0.5]` |
+| Top center | `[0.5, 0]` |
+| Bottom center | `[0.5, 1]` |
+| Left center | `[0, 0.5]` |
+| Right center | `[1, 0.5]` |
 
-**Staggered arrows:** Use actual position, not center:
-
-| Position | fixedPoint |
-|----------|------------|
-| Bottom at 20% | `[0.2, 1]` |
-| Bottom at 50% | `[0.5, 1]` |
-| Bottom at 80% | `[0.8, 1]` |
+For arrows spread across an edge, use the actual position (e.g., `[0.3, 1]` for bottom edge at 30%).
 
 ### Binding Structure
 
 ```json
 {
-  "id": "arrow-workflow-convert",
-  "type": "arrow",
-  "x": 525,
-  "y": 420,
-  "width": 325,
-  "height": 125,
-  "points": [[0, 0], [-325, 0], [-325, 125]],
-  "roughness": 0,
-  "roundness": null,
-  "elbowed": true,
   "startBinding": {
-    "elementId": "cloud-workflows",
+    "elementId": "source-shape-id",
     "focus": 0,
     "gap": 1,
     "fixedPoint": [0.5, 1]
   },
   "endBinding": {
-    "elementId": "convert-pdf-service",
+    "elementId": "target-shape-id",
     "focus": 0,
     "gap": 1,
     "fixedPoint": [0.5, 0]
-  },
-  "startArrowhead": null,
-  "endArrowhead": "arrow"
+  }
 }
 ```
 
@@ -179,10 +143,10 @@ Shapes must reference arrows in their `boundElements`:
 
 ```json
 {
-  "id": "cloud-workflows",
+  "id": "my-shape",
   "boundElements": [
-    { "type": "text", "id": "cloud-workflows-text" },
-    { "type": "arrow", "id": "arrow-workflow-convert" }
+    { "type": "text", "id": "my-shape-text" },
+    { "type": "arrow", "id": "arrow-to-next" }
   ]
 }
 ```
@@ -211,41 +175,14 @@ Position standalone text near arrow midpoint:
 
 ```json
 {
-  "id": "arrow-api-db-label",
+  "id": "arrow-label",
   "type": "text",
   "x": 305,
   "y": 245,
-  "text": "SQL",
+  "text": "label text",
   "fontSize": 12,
-  "containerId": null,
-  "backgroundColor": "#ffffff"
+  "containerId": null
 }
 ```
 
-**Positioning formula:**
-- Vertical arrow: `label.y = arrow.y + (total_height / 2)`
-- Horizontal arrow: `label.x = arrow.x + (total_width / 2)`
-- L-shaped: Position at corner or longest segment midpoint
-
----
-
-## Required Arrow Properties
-
-For 90-degree elbow arrows, these three properties are required:
-
-```json
-{
-  "type": "arrow",
-  "roughness": 0,
-  "roundness": null,
-  "elbowed": true
-}
-```
-
-| Property | Value | Purpose |
-|----------|-------|---------|
-| `roughness` | `0` | Clean lines (not hand-drawn) |
-| `roundness` | `null` | Sharp corners (not curved) |
-| `elbowed` | `true` | Enables 90-degree routing |
-
-**Without all three, arrows will be curved instead of 90-degree elbows.**
+Position labels at the visual midpoint or near bends for clarity.
