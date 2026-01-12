@@ -46,7 +46,7 @@ Critical rules — violations cause broken diagrams:
 | Labels = 2 elements | Shape needs `boundElements`, text needs `containerId` |
 | Elbow arrows = 3 props | `roughness: 0`, `roundness: null`, `elbowed: true` |
 | Arrows from edges | Top: `(x+w/2, y)`, Bottom: `(x+w/2, y+h)`, Left: `(x, y+h/2)`, Right: `(x+w, y+h/2)` |
-| Visible calculations | Output calculation block before each arrow JSON |
+| Arrows: GATHER→COMPUTE→OUTPUT | Fill CONNECTION template first, derive values second. No template = delete JSON |
 
 ---
 
@@ -86,25 +86,50 @@ For each component:
 
 ### Step 5: Generate Arrows
 
-**For each arrow, output a calculation block first:**
+**THE RULE:** Data first, compute second. No estimating.
+
+For each arrow, follow these phases IN ORDER:
+
+**5a. GATHER** — Copy template, fill with actual values from your shapes:
 
 ```
-ARROW: {source-id} → {target-id}
-Source: x={x}, y={y}, w={w}, h={h}
-Target: x={x}, y={y}, w={w}, h={h}
-Source edge ({edge}): = ({x}, {y})
-Target edge ({edge}): = ({x}, {y})
-Offset: dx={dx}, dy={dy}
-Points: [[0,0], ...]
+CONNECTION: {source-id} → {target-id}
+Source: x=__, y=__, w=__, h=__ → {edge}: (__, __)
+Target: x=__, y=__, w=__, h=__ → {edge}: (__, __)
 ```
 
-Then generate the arrow JSON.
+Use edge formulas from Quick Reference. **Write actual numbers you look up, not approximations.**
 
-**No visible calculations = guaranteed broken arrows.**
+**5b. COMPUTE** — Mechanically derive from gathered data:
 
-**Arrow patterns:** See `excalidraw-spec/arrows.md`
+```
+arrow.x = source_edge_x = __
+arrow.y = source_edge_y = __
+dx = target_edge_x − arrow.x = __
+dy = target_edge_y − arrow.y = __
+```
+
+Point pattern: see `arrows.md` routing algorithm.
+
+**5c. OUTPUT** — Generate the arrow JSON.
+
+---
+
+| If you skip... | What breaks |
+|----------------|-------------|
+| GATHER (estimate coords) | Edge points wrong → arrow floats in space |
+| COMPUTE (guess dx/dy) | Arrow ends inside target shape |
+| Both ("I know roughly where") | Guaranteed broken diagram, wasted debugging |
+
+**No CONNECTION template above your JSON = delete the JSON and restart from 5a.**
 
 ### Step 6: Validate & Output
+
+**Before outputting JSON, verify 2-3 arrows:**
+1. Pick arrows that cross lanes or use L-shapes (highest error risk)
+2. For each: trace `arrow.x + final_point[0]` and `arrow.y + final_point[1]`
+3. Result MUST equal target edge coordinates (within 5px)
+4. If mismatch: fix the arrow before proceeding
 
 Output raw JSON directly (no markdown fences).
 
@@ -177,6 +202,7 @@ For class diagrams, architecture, sequence:
 | Arrows curved | Add `elbowed: true`, `roundness: null`, `roughness: 0` |
 | Arrows floating | Calculate x,y from shape edge, not center |
 | Arrows overlapping | Stagger start positions across edge |
+| Arrow ends inside shape | dx/dy estimated, not calculated — always compute: `target_edge - arrow_start` |
 
 **Detailed fixes:** See `excalidraw-spec/validation.md`
 

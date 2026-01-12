@@ -92,8 +92,11 @@ FUNCTION findShapeNear(elements, x, y, tolerance=15):
 
 ### Arrow Validation (Every Arrow)
 
-- [ ] Arrow `x,y` calculated from shape edge
-- [ ] Final point offset = `targetEdge - sourceEdge`
+- [ ] **GATHER phase done:** CONNECTION template filled with actual shape values (not estimates)
+- [ ] **COMPUTE phase done:** arrow.x,y and dx,dy derived from gathered edge coords
+- [ ] Arrow `x,y` = source edge coordinates (direct copy, not calculated separately)
+- [ ] `dx` = target_edge_x − arrow.x (subtraction, not approximation)
+- [ ] `dy` = target_edge_y − arrow.y (subtraction, not approximation)
 - [ ] Arrow `width` = `max(abs(point[0]))`
 - [ ] Arrow `height` = `max(abs(point[1]))`
 - [ ] U-turn arrows have 40-60px clearance
@@ -178,3 +181,21 @@ clearance = 40-60px
   "elbowed": true
 }
 ```
+
+### Bug: Arrow endpoint lands inside target shape
+
+**Cause**: Skipped GATHER phase, estimated dx/dy instead of computing from edge coords.
+
+**Example**:
+```
+Arrow ends at y=400, but target top edge is at y=370
+→ Arrow overshoots by 30px, landing inside the shape
+```
+
+**Fix**: Always compute exactly:
+```
+dy = target_edge_y − arrow.y
+dy = 370 - 310 = 60  // NOT "about 90"
+```
+
+**Prevention**: Follow GATHER→COMPUTE→OUTPUT in Step 5. GATHER forces you to write down actual edge coordinates. COMPUTE is then just subtraction.

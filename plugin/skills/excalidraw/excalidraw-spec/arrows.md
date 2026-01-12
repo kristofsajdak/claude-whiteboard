@@ -6,23 +6,6 @@ Complete guide for creating elbow arrows with proper connections.
 
 ---
 
-## Spot Check (Optional but Recommended)
-
-After generating arrows, verify 2-3 by tracing the path:
-
-```
-VERIFY: {arrow-id}
-Start: ({arrow.x}, {arrow.y})
-+ point[1]: = ({x}, {y})
-End: ({final_x}, {final_y})
-Expected: ({target_edge_x}, {target_edge_y})
-Match: ✓ or ✗
-```
-
-Prioritize: L-shaped arrows, lane-crossing arrows, U-turns.
-
----
-
 ## Critical: Elbow Arrow Properties
 
 Three required properties for 90-degree corners:
