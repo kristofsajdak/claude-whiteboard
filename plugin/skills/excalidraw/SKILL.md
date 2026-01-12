@@ -40,13 +40,12 @@ This skill does NOT handle file I/O (use whiteboard skill for canvas read/write)
 
 Critical rules — violations cause broken diagrams:
 
-| Rule | Summary |
-|------|---------|
-| No diamonds | Diamond arrow connections broken. Use `rectangle` with `strokeStyle: "dashed"` |
-| Labels = 2 elements | Shape needs `boundElements`, text needs `containerId` |
-| Multi-point arrows = 3 props | `roughness: 0`, `roundness: null`, `elbowed: true` (only when >2 points) |
-| Bindings must match coords | Arrow x/y and endpoint must land where bindings claim |
-| Arrows: follow `arrows.md` | Read principles, consider full diagram context |
+| Rule | Details in |
+|------|------------|
+| No diamond shapes | `json-format.md` |
+| Labels require shape + text elements | `json-format.md` |
+| Multi-point arrows need elbow props | `arrows.md` |
+| Arrow bindings must match coordinates | `arrows.md` |
 
 ---
 
@@ -158,19 +157,6 @@ For class diagrams, architecture, sequence:
 | `:action;` | Rounded rect | Rounded rectangle |
 | `start` | Filled circle | Small filled ellipse |
 | `stop` | Circle with ring | Ellipse, white fill, thick stroke |
-
----
-
-## Common Issues
-
-| Issue | Fix |
-|-------|-----|
-| Labels don't appear | Use TWO elements (shape + text), not `label` property |
-| Multi-point arrows curved | Add `elbowed: true`, `roundness: null`, `roughness: 0` |
-| Arrow "jumps" when edited | Coordinates don't match bindings; ensure x/y and endpoint match fixedPoint |
-| Arrows overlapping | Spread start positions visually across the edge |
-
-**Detailed fixes:** See `excalidraw-spec/validation.md`
 
 ---
 

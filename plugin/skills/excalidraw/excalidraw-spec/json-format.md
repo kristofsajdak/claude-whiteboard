@@ -76,10 +76,8 @@ Every element requires these properties:
   "strokeColor": "#1971c2",
   "backgroundColor": "#a5d8ff",
   "boundElements": [
-    {
-      "type": "text",
-      "id": "{component-id}-text"
-    }
+    { "type": "text", "id": "{component-id}-text" },
+    { "type": "arrow", "id": "arrow-to-next" }
   ]
   // ... other required properties
 }

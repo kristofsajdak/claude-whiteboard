@@ -139,7 +139,7 @@ For arrows spread across an edge, use the actual position (e.g., `[0.3, 1]` for 
 
 ### Update Shape boundElements
 
-Shapes must reference arrows in their `boundElements`:
+Shapes must reference connected arrows in their `boundElements`:
 
 ```json
 {
