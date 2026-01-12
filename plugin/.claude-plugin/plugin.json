@@ -1,7 +1,7 @@
 {
   "name": "whiteboard",
   "description": "Whiteboard plugin for Claude Code - canvas operations and diagram generation",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "author": {
     "name": "Kristof Sajdak"
   },
