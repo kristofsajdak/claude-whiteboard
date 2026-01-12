@@ -112,9 +112,29 @@ Output raw JSON directly (no markdown fences).
 **Layout:**
 - Headers: y=50, height=50
 - First row: y=140
-- Row spacing: ~120px
+- Row spacing: ~110px (each step gets its own row)
 - Lane spacing: ~220px
 - Element size: 200x70
+
+**CRITICAL: Row-based cross-lane flow**
+
+Each process step goes on its OWN ROW, regardless of lane. Cross-lane arrows go DIAGONALLY DOWN, not horizontally:
+
+```
+WRONG (same row):                    CORRECT (row per step):
+Lane A    Lane B    Lane C           Lane A    Lane B    Lane C
+[Box1] -> [Box2] -> [Box3]           [Box1]
+                                         ↘
+                                             [Box2]
+                                                 ↘
+                                                     [Box3]
+```
+
+This approach:
+- Creates clear top-to-bottom flow
+- Simplifies arrows to simple diagonals
+- Eliminates horizontal routing complexity
+- Prevents arrow-box crossings
 
 **Color Palette:**
 
