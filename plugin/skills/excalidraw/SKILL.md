@@ -87,24 +87,16 @@ For each component:
 
 ### Step 5: Generate Arrows
 
-For each arrow, follow `arrows.md` completely:
+For each arrow, follow `arrows.md` completely. Every section, every step, every arrow.
 
-- [ ] Calculate edge points (Edge Calculation Formulas)
-- [ ] Determine arrow position and offsets (Universal Arrow Routing Algorithm)
-- [ ] Build points array (Arrow Patterns Reference)
-- [ ] Set bindings (Arrow Bindings)
-- [ ] Calculate width/height from points
-- [ ] Configure arrowheads, labels as needed
-
-**Every arrow. No exceptions. No "representative samples." 13 arrows = 13 complete calculations.**
+**No exceptions. No "representative samples." 13 arrows = 13 complete calculations.**
 
 | If you skip... | What breaks |
 |----------------|-------------|
-| Edge formulas | Arrow floats in space |
-| Routing algorithm | Arrow ends inside target shape |
-| Most arrows ("showed a few examples") | Unverified arrows WILL have errors |
+| Any section of arrows.md | Arrows will be broken |
+| Calculations for some arrows | Those arrows WILL be broken |
 
-**No documented arrows.md calculation = delete the JSON and restart.**
+**No documented calculation = delete the JSON and restart.**
 
 ### Step 6: Validate & Output
 

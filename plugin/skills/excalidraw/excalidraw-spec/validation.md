@@ -55,7 +55,7 @@ FUNCTION validateDiagram(elements):
 
   RETURN errors
 
-FUNCTION findShapeNear(elements, x, y, tolerance=15):
+FUNCTION findShapeNear(elements, x, y, tolerance=5):
   FOR each shape IN elements WHERE shape.type IN ["rectangle", "ellipse"]:
     edges = [
       (shape.x + shape.width/2, shape.y),              // top
@@ -106,8 +106,8 @@ FUNCTION findShapeNear(elements, x, y, tolerance=15):
 
 - [ ] All `boundElements` IDs reference valid text elements
 - [ ] All `containerId` values reference valid shapes
-- [ ] All arrows start within 15px of shape edge
-- [ ] All arrows end within 15px of shape edge
+- [ ] All arrows start within 5px of shape edge
+- [ ] All arrows end within 5px of shape edge
 - [ ] No duplicate IDs
 - [ ] Arrow bounding boxes match points
 - [ ] File is valid JSON
