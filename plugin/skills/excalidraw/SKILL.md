@@ -23,16 +23,81 @@ This skill does NOT handle:
 
 ## Before You Generate
 
-**BEFORE GENERATING ANY ELEMENTS: Read the relevant spec:**
+**BEFORE GENERATING/PARSING ANY ELEMENTS: Read the relevant spec:**
 
-- [EXCALIDRAW-SPEC.md](EXCALIDRAW-SPEC.md) - Element structure, bindings, JSON format
-- [PLANTUML-SPEC.md](PLANTUML-SPEC.md) - PlantUML syntax (when source/target is PlantUML)
+- EXCALIDRAW SPEC:
+  - `excalidraw-spec/json-format.md`: Element types, required properties, text bindings
+  - `excalidraw-spec/arrows.md`: Routing algorithm, patterns, bindings, staggering
+  - `excalidraw-spec/validation.md`: Checklists, validation algorithm, bug fixes
+
+- PLANTUML SPEC (when source/target is PlantUML):
+  - `PLANTUML-SPEC.md` 
 
 | If you think...       | Reality                                                |
 |-----------------------|--------------------------------------------------------|
 | "User said skip docs" | Invalid JSON wastes their time. Read the spec.         |
 | "It's urgent"         | Reading spec: 30 sec. Debugging broken output: 5 min.  |
 | "I know the format"   | Training data is outdated. These specs are authoritative. |
+
+## Critical Rules
+
+### 1. NEVER Use Diamond Shapes
+
+Diamond arrow connections are broken in raw Excalidraw JSON. Use styled rectangles instead:
+
+| Semantic Meaning | Rectangle Style |
+|------------------|-----------------|
+| Decision Point | dashed stroke |
+
+### 2. Labels Require TWO Elements
+
+The `label` property does NOT work in raw JSON. Every labeled shape needs:
+
+```json
+// 1. Shape with boundElements reference
+{
+  "id": "my-box",
+  "type": "rectangle",
+  "boundElements": [{ "type": "text", "id": "my-box-text" }]
+}
+
+// 2. Separate text element with containerId
+{
+  "id": "my-box-text",
+  "type": "text",
+  "containerId": "my-box",
+  "text": "My Label"
+}
+```
+
+### 3. Elbow Arrows Need Three Properties
+
+For 90-degree corners (not curved):
+
+```json
+{
+  "type": "arrow",
+  "roughness": 0,        // Clean lines
+  "roundness": null,     // Sharp corners
+  "elbowed": true        // 90-degree mode
+}
+```
+
+### 4. Arrow Edge Calculations
+
+Arrows must start/end at shape edges, not centers:
+
+| Edge | Formula |
+|------|---------|
+| Top | `(x + width/2, y)` |
+| Bottom | `(x + width/2, y + height)` |
+| Left | `(x, y + height/2)` |
+| Right | `(x + width, y + height/2)` |
+
+**Detailed arrow routing:** See `excalidraw-spec/arrows.md`
+
+---
+
 
 ## Direction Detection
 
@@ -136,102 +201,21 @@ Boxes use the same lane color but with lighter fill:
 - Row spacing: ~120px vertical
 - Style: same strokeColor as lane header, lighter backgroundColor
 
-**Critical: Boxes must declare ALL bound elements:**
-
-```json
-{
-  "type": "rectangle",
-  "strokeColor": "#1971c2",
-  "backgroundColor": "#e7f5ff",
-  "boundElements": [
-    {"id": "box-text-id", "type": "text"},
-    {"id": "incoming-arrow-id", "type": "arrow"},
-    {"id": "outgoing-arrow-id", "type": "arrow"}
-  ]
-}
-```
-
-### Arrow Styling (REQUIRED)
-
-**All arrow segments MUST be straight.** Do NOT use curved arrows.
-
-Required property:
-- `roundness: null` - no curves, straight segments only
-
-Multi-segment arrows (more than 2 points) are allowed when needed to route around elements.
-
-### Arrow Binding (Bidirectional - REQUIRED)
-
-For arrows to stay connected when dragging, binding must be declared on BOTH sides:
-
-1. **Box declares arrow** in its `boundElements` array
-2. **Arrow declares box** in `startBinding` and `endBinding`
-
-```json
-{
-  "type": "arrow",
-  "roundness": null,
-  "points": [[0, 0], [dx, dy]],
-  "startBinding": {"elementId": "source-box-id", "focus": 0, "gap": 1},
-  "endBinding": {"elementId": "target-box-id", "focus": 0, "gap": 1},
-  "boundElements": [{"id": "label-id", "type": "text"}],
-  "endArrowhead": "arrow"
-}
-```
-
-### Arrow Labels
-
-Labels bound to arrows move with them:
-
-```json
-{
-  "type": "text",
-  "containerId": "arrow-id",
-  "text": "webhook",
-  "fontSize": 14,
-  "textAlign": "center",
-  "verticalAlign": "middle"
-}
-```
-
-Use labels to describe what flows between steps (e.g., "HTTP request", "event", "callback").
+**Critical: Boxes must declare ALL bound elements:** 
 
 ### Activity Diagram Shape Reference
 
 Standard shapes for activity diagram constructs:
 
-| Construct             | Excalidraw Shape    | Size   | Notes                                           |
-|-----------------------|---------------------|--------|-------------------------------------------------|
-| Decision (branching)  | Diamond             | 100x80 | Where flow splits based on condition            |
-| Merge (converging)    | Diamond or implicit | 100x80 | Where paths rejoin; can omit if arrows converge |
-| Fork (parallel start) | Thin rectangle      | 400x8  | Bar indicating parallel execution begins        |
-| Join (parallel end)   | Thin rectangle      | 400x8  | Bar indicating parallel paths synchronize       |
-| Action/Activity       | Rounded rectangle   | 200x70 | `roundness: {type: 3}`                          |
-| Start                 | Small ellipse       | 30x30  | Solid black fill                                |
-| End/Stop              | Small ellipse       | 30x30  | White fill, thick black stroke                  |
-
-### Decision Node
-
-Diamond shape for branching decisions. Use lane colors or yellow/orange for neutral.
-
-```json
-{
-  "type": "diamond",
-  "width": 100,
-  "height": 80,
-  "strokeColor": "#f08c00",
-  "backgroundColor": "#fff9db",
-  "roundness": null,
-  "boundElements": [
-    {"id": "decision-text-id", "type": "text"},
-    {"id": "incoming-arrow-id", "type": "arrow"},
-    {"id": "yes-arrow-id", "type": "arrow"},
-    {"id": "no-arrow-id", "type": "arrow"}
-  ]
-}
-```
-
-Use semantic arrow colors for branches: green (`#2f9e44`) for "Yes"/success path, red (`#e03131`) for "No"/failure path.
+| Construct             | Excalidraw Shape          | Size   | Notes                                           |
+|-----------------------|---------------------------|--------|-------------------------------------------------|
+| Decision (branching)  | Rectangle (dashed stroke) | 100x80 | Where flow splits based on condition            |
+| Merge (converging)    | Rectangle (dashed stroke) or implicit       | 100x80 | Where paths rejoin; can omit if arrows converge |
+| Fork (parallel start) | Thin rectangle            | 400x8  | Bar indicating parallel execution begins        |
+| Join (parallel end)   | Thin rectangle            | 400x8  | Bar indicating parallel paths synchronize       |
+| Action/Activity       | Rounded rectangle         | 200x70 | `roundness: {type: 3}`                          |
+| Start                 | Small ellipse             | 30x30  | Solid black fill                                |
+| End/Stop              | Small ellipse             | 30x30  | White fill, thick black stroke                  |
 
 ### Fork/Join Bar
 
@@ -306,6 +290,34 @@ Output the **raw Excalidraw JSON** directly to chat:
   "files": {}
 }
 ```
+
+## Quick Validation Checklist
+
+Before writing file:
+- [ ] Every shape with label has boundElements + text element
+- [ ] Text elements have containerId matching shape
+- [ ] Multi-point arrows have `elbowed: true`, `roundness: null`
+- [ ] Arrow x,y = source shape edge point
+- [ ] Arrow final point offset reaches target edge
+- [ ] No diamond shapes
+- [ ] No duplicate IDs
+
+**Full validation algorithm:** See `excalidraw-spec/validation.md`
+
+---
+
+## Common Issues
+
+| Issue | Fix |
+|-------|-----|
+| Labels don't appear | Use TWO elements (shape + text), not `label` property |
+| Arrows curved | Add `elbowed: true`, `roundness: null`, `roughness: 0` |
+| Arrows floating | Calculate x,y from shape edge, not center |
+| Arrows overlapping | Stagger start positions across edge |
+
+**Detailed bug fixes:** See `excalidraw-spec/validation.md`
+
+---
 
 ---
 
