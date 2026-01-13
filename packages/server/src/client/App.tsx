@@ -10,21 +10,41 @@ export default function App() {
     return localStorage.getItem('whiteboard-name')
   })
   const excalidrawAPIRef = useRef<ExcalidrawImperativeAPI | null>(null)
-  const lastAppliedVersionRef = useRef(0)
+  // Store viewport position before remount
+  const savedViewportRef = useRef<{ scrollX: number; scrollY: number; zoom: { value: number } } | null>(null)
 
-  // Update Excalidraw when remote elements arrive (without remounting)
+  // Save viewport before remount happens (triggered by remoteVersion key change)
   useEffect(() => {
-    if (excalidrawAPIRef.current && remoteVersion > lastAppliedVersionRef.current) {
-      lastAppliedVersionRef.current = remoteVersion
-      // Update elements while preserving current viewport
-      excalidrawAPIRef.current.updateScene({ elements })
+    if (excalidrawAPIRef.current) {
+      const api = excalidrawAPIRef.current
+      const appState = api.getAppState()
+      savedViewportRef.current = {
+        scrollX: appState.scrollX,
+        scrollY: appState.scrollY,
+        zoom: appState.zoom
+      }
     }
-  }, [elements, remoteVersion])
+  }, [remoteVersion])
 
   const handleExcalidrawAPI = useCallback((api: ExcalidrawImperativeAPI) => {
     excalidrawAPIRef.current = api
     // Expose for testing
     ;(window as any).__EXCALIDRAW_API__ = api
+    // Trigger initial render of all elements (including text)
+    // then restore the saved viewport position
+    requestAnimationFrame(() => {
+      // scrollToContent forces Excalidraw to render all elements
+      api.scrollToContent()
+      // If we have a saved viewport, restore it after rendering
+      if (savedViewportRef.current) {
+        const { scrollX, scrollY, zoom } = savedViewportRef.current
+        requestAnimationFrame(() => {
+          api.updateScene({
+            appState: { scrollX, scrollY, zoom }
+          })
+        })
+      }
+    })
   }, [])
 
   if (!userName) {
@@ -39,6 +59,7 @@ export default function App() {
 
       <main style={{ flex: 1, position: 'relative' }}>
         <Excalidraw
+          key={remoteVersion}
           excalidrawAPI={handleExcalidrawAPI}
           initialData={{ elements }}
           onChange={(newElements, newAppState) => onChange(newElements as any, newAppState)}
