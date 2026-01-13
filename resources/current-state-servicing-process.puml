@@ -1,0 +1,76 @@
+@startuml Current State - Servicing Process
+title Current State: Servicing Process
+
+|Service Member|
+start
+if (Trigger?) then (Self-initiated)
+  :Decide to visit site;
+  note right
+    Frequency based on:
+    - Initial backoffice guidelines
+    - Practical experience with fill rate
+    - Self-determined schedule
+  end note
+else (Overflow complaint)
+  |Customer|
+  #FF6B6B:Report bin overflow;
+  note right
+    **PAIN POINT:**
+    Indicates under-servicing
+    No fill rate data to optimize
+    Reputation damage already done
+  end note
+  |Backoffice Manager|
+  :Receive complaint;
+  :Contact service member urgently;
+endif
+
+|Service Member|
+:Navigate to site;
+
+if (Bin location known?) then (yes)
+  :Locate bin easily;
+else (no)
+  :Need extra info;
+  note right
+    Cases:
+    - Mobile bins moved
+    - Large site and location info
+        - Missing
+        - Insufficient
+        - Hard to interpret
+  end note
+
+  :Contact backoffice manager;
+
+  |Backoffice Manager|
+  if (Manager available?) then (yes)
+    :Search WhatsApp history;
+    :Retrieve location info;
+    :Send to service member;
+    |Service Member|
+    :Receive additional location info;
+  else (no)
+    #FF6B6B:Service member blocked;
+    note right
+      **PAIN POINT:**
+      Member may miss visit
+      or waste time searching
+    end note
+    stop
+  endif
+endif
+
+:Locate bin;
+:Service bin;
+:Empty bin cassette into labeled container;
+:Take before/after photos;
+:Send photos via WhatsApp;
+note right
+  **PAIN POINT:**
+  Photos rarely checked,
+  easy to game
+end note
+
+stop
+@enduml
