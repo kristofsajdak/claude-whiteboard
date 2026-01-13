@@ -1,13 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Excalidraw } from '@excalidraw/excalidraw'
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types'
 import { useCanvas } from './hooks/useCanvas'
 import { JoinModal } from './components/JoinModal'
 
 export default function App() {
-  const { elements, participantCount, sessionName, version, onChange } = useCanvas()
+  const { elements, participantCount, sessionName, remoteVersion, onChange } = useCanvas()
   const [userName, setUserName] = useState<string | null>(() => {
     return localStorage.getItem('whiteboard-name')
   })
+  const excalidrawAPIRef = useRef<ExcalidrawImperativeAPI | null>(null)
+  const lastAppliedVersionRef = useRef(0)
+
+  // Update Excalidraw when remote elements arrive (without remounting)
+  useEffect(() => {
+    if (excalidrawAPIRef.current && remoteVersion > lastAppliedVersionRef.current) {
+      lastAppliedVersionRef.current = remoteVersion
+      // Update elements while preserving current viewport
+      excalidrawAPIRef.current.updateScene({ elements })
+    }
+  }, [elements, remoteVersion])
+
+  const handleExcalidrawAPI = useCallback((api: ExcalidrawImperativeAPI) => {
+    excalidrawAPIRef.current = api
+    // Expose for testing
+    ;(window as any).__EXCALIDRAW_API__ = api
+  }, [])
 
   if (!userName) {
     return <JoinModal onJoin={setUserName} />
@@ -21,9 +39,9 @@ export default function App() {
 
       <main style={{ flex: 1, position: 'relative' }}>
         <Excalidraw
-          key={version}
+          excalidrawAPI={handleExcalidrawAPI}
           initialData={{ elements }}
-          onChange={(newElements) => onChange(newElements as any)}
+          onChange={(newElements, newAppState) => onChange(newElements as any, newAppState)}
         />
       </main>
 

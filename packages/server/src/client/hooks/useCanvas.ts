@@ -9,8 +9,8 @@ interface UseCanvasReturn {
   elements: ExcalidrawElement[]
   participantCount: number
   sessionName: string
-  version: number
-  onChange: (elements: ExcalidrawElement[]) => void
+  remoteVersion: number
+  onChange: (elements: ExcalidrawElement[], appState?: any) => void
 }
 
 // Compute a hash of element content (ignoring selection state)
@@ -27,7 +27,7 @@ export function useCanvas(): UseCanvasReturn {
   const [elements, setElements] = useState<ExcalidrawElement[]>([])
   const [participantCount, setParticipantCount] = useState(0)
   const [sessionName, setSessionName] = useState('loading...')
-  const [version, setVersion] = useState(0)
+  const [remoteVersion, setRemoteVersion] = useState(0)
   const wsRef = useRef<WebSocket | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
   // Track when we're receiving a remote update to avoid echo loops
@@ -51,7 +51,8 @@ export function useCanvas(): UseCanvasReturn {
           // Update our hash to match remote state (prevents re-sending)
           lastSentHashRef.current = getElementsContentHash(remoteElements)
           setElements(remoteElements)
-          setVersion(v => v + 1)
+          // Increment version to trigger useEffect in App.tsx
+          setRemoteVersion(v => v + 1)
           // Clear the flag after React has processed the update
           // Use requestAnimationFrame to ensure Excalidraw's onChange has fired
           requestAnimationFrame(() => {
@@ -78,7 +79,7 @@ export function useCanvas(): UseCanvasReturn {
     }
   }, [])
 
-  const onChange = useCallback((newElements: ExcalidrawElement[]) => {
+  const onChange = useCallback((newElements: ExcalidrawElement[], appState?: any) => {
     // Skip if this onChange was triggered by a remote update
     // (prevents echo loop between clients)
     if (isRemoteUpdateRef.current) {
@@ -113,5 +114,5 @@ export function useCanvas(): UseCanvasReturn {
     }, 100)
   }, [])
 
-  return { elements, participantCount, sessionName, version, onChange }
+  return { elements, participantCount, sessionName, remoteVersion, onChange }
 }

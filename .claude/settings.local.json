@@ -13,7 +13,11 @@
       "Skill(superpowers:brainstorming)",
       "Skill(canvas)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Skill(whiteboard:excalidraw)",
+      "Skill(whiteboard:whiteboard)",
+      "WebFetch(domain:cef346057c87.ngrok-free.app)",
+      "Skill(example-skills:webapp-testing)"
     ]
   }
 }
