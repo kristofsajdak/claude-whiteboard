@@ -1,20 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { restoreElements } from '@excalidraw/excalidraw'
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types'
-
-interface CanvasState {
-  elements: ExcalidrawElement[]
-}
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types'
 
 interface UseCanvasReturn {
   elements: ExcalidrawElement[]
   participantCount: number
   sessionName: string
-  remoteVersion: number
-  onChange: (elements: ExcalidrawElement[], appState?: any) => void
+  onChange: (elements: ExcalidrawElement[]) => void
+  setExcalidrawAPI: (api: ExcalidrawImperativeAPI) => void
 }
 
 // Compute a hash of element content (ignoring selection state)
-// This lets us detect actual changes vs just selection/hover changes
 function getElementsContentHash(elements: ExcalidrawElement[]): string {
   return elements
     .filter(el => !el.isDeleted)
@@ -27,12 +24,10 @@ export function useCanvas(): UseCanvasReturn {
   const [elements, setElements] = useState<ExcalidrawElement[]>([])
   const [participantCount, setParticipantCount] = useState(0)
   const [sessionName, setSessionName] = useState('loading...')
-  const [remoteVersion, setRemoteVersion] = useState(0)
+  const excalidrawAPIRef = useRef<ExcalidrawImperativeAPI | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
-  // Track when we're receiving a remote update to avoid echo loops
   const isRemoteUpdateRef = useRef(false)
-  // Track the last sent content hash to avoid sending unchanged content
   const lastSentHashRef = useRef<string>('')
 
   useEffect(() => {
@@ -44,17 +39,31 @@ export function useCanvas(): UseCanvasReturn {
       const message = JSON.parse(event.data)
       switch (message.type) {
         case 'canvas:update': {
-          // Mark that we're receiving a remote update - this prevents
-          // the onChange handler from sending this back to the server
           isRemoteUpdateRef.current = true
           const remoteElements = message.payload.elements || []
-          // Update our hash to match remote state (prevents re-sending)
           lastSentHashRef.current = getElementsContentHash(remoteElements)
-          setElements(remoteElements)
-          // Increment version to trigger useEffect in App.tsx
-          setRemoteVersion(v => v + 1)
-          // Clear the flag after React has processed the update
-          // Use requestAnimationFrame to ensure Excalidraw's onChange has fired
+
+          if (excalidrawAPIRef.current) {
+            // Get current local elements for reconciliation
+            const localElements = excalidrawAPIRef.current.getSceneElementsIncludingDeleted()
+
+            // CRITICAL: Restore elements with refreshDimensions to recalculate text metrics
+            // Without this, text elements won't render properly
+            const restoredElements = restoreElements(
+              remoteElements,
+              localElements,
+              { refreshDimensions: true, repairBindings: true }
+            )
+
+            // Update scene - this preserves viewport position
+            excalidrawAPIRef.current.updateScene({
+              elements: restoredElements as any
+            })
+          } else {
+            // Fallback for initial load before API is ready
+            setElements(remoteElements)
+          }
+
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               isRemoteUpdateRef.current = false
@@ -68,7 +77,6 @@ export function useCanvas(): UseCanvasReturn {
       }
     }
 
-    // Fetch session info
     fetch('/api/session')
       .then(res => res.json())
       .then(data => setSessionName(data.name))
@@ -79,29 +87,23 @@ export function useCanvas(): UseCanvasReturn {
     }
   }, [])
 
-  const onChange = useCallback((newElements: ExcalidrawElement[], appState?: any) => {
-    // Skip if this onChange was triggered by a remote update
-    // (prevents echo loop between clients)
+  const onChange = useCallback((newElements: ExcalidrawElement[]) => {
     if (isRemoteUpdateRef.current) {
       return
     }
 
     setElements(newElements)
 
-    // Check if content actually changed (not just selection/hover)
     const newHash = getElementsContentHash(newElements)
     if (newHash === lastSentHashRef.current) {
-      // No actual content change, don't send to server
       return
     }
 
-    // Debounce WebSocket sends
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
     debounceRef.current = setTimeout(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        // Re-check hash in case it changed during debounce
         const currentHash = getElementsContentHash(newElements)
         if (currentHash !== lastSentHashRef.current) {
           lastSentHashRef.current = currentHash
@@ -114,5 +116,9 @@ export function useCanvas(): UseCanvasReturn {
     }, 100)
   }, [])
 
-  return { elements, participantCount, sessionName, remoteVersion, onChange }
+  const setExcalidrawAPI = useCallback((api: ExcalidrawImperativeAPI) => {
+    excalidrawAPIRef.current = api
+  }, [])
+
+  return { elements, participantCount, sessionName, onChange, setExcalidrawAPI }
 }
